@@ -25,10 +25,12 @@ var jsPsychAudioRating = (function (jspsych) {
     }
 
     trial(display_element, trial) {
-      // Initialize variables
-      let ratings = [];
-      let ratingData = {};
+      // Initialize trial-specific variables
+      let ratings = []; // Store all ratings across trials
+      let trialCount = 0; // Track trial number
+      trialCount++; // Increment trial count
       let lowEnd, highEnd, ratingName;
+      let selectedRating; // To store selected rating
 
       // Create audio element
       const audio = document.createElement('audio');
@@ -116,6 +118,64 @@ var jsPsychAudioRating = (function (jspsych) {
       canvas.id = 'ratingChart';
       display_element.appendChild(canvas);
 
+      // Add styles using CSS to control the size
+      const chart_styles = document.createElement('style');
+      chart_styles.innerHTML = `
+        #ratingChart {
+          width: 800px;       /* Default width */
+          height: 400px;      /* Default height */
+          min-width: 800px;   /* Minimum width */
+          min-height: 400px;  /* Minimum height */
+          margin: 50px auto 0 auto;  /* Add 100px margin on top to push it down */
+        }
+      `;
+      display_element.appendChild(chart_styles);
+
+      // Initialize Chart.js chart
+      const ctx = canvas.getContext('2d');
+      const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: [], // Will be updated with trial numbers
+          datasets: [{
+            data: [], // Will be updated with rating values
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            fill: false
+          }]
+        },
+        options: {
+          plugins: {
+            legend: {
+              display: false // Disable the legend
+            },
+            title: {
+              display: true,  // Make sure the title is displayed
+              text: 'Rating History', // Your desired title text
+              font: {
+                size: 18 // Adjust the font size if necessary
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'x label'
+              }
+            },
+            y: {
+              min: 0,
+              max: 10,
+              title: {
+                display: true,
+                text: 'y label'
+              }
+            }
+          }
+        }
+      });
+
       // Add styles
       const styles = document.createElement('style');
       styles.innerHTML = `
@@ -168,6 +228,18 @@ var jsPsychAudioRating = (function (jspsych) {
       `;
       display_element.appendChild(styles);
 
+      // Function to save rating
+      const saveRating = (selectedRating) => {
+        ratings.push(selectedRating); // Save the rating
+      };
+
+      // Function to update the chart
+      const updateChart = (selectedRating) => {
+        chart.data.labels.push(trialCount); // Update trial count
+        chart.data.datasets[0].data.push(selectedRating); // Update rating data
+        chart.update();
+      };
+
 
       // Enable radio buttons when audio ends
       audio.addEventListener('ended', () => {
@@ -178,9 +250,14 @@ var jsPsychAudioRating = (function (jspsych) {
             // When a radio button is selected, end the trial
             const selectedRating = parseInt(radio.value);
             radio.style.backgroundColor = '#000'; // Button fills in black
+
+            // Call the functions to save rating and update the chart
+            saveRating(selectedRating);
+            updateChart(selectedRating);
+            
             setTimeout(() => {
               this.jsPsych.finishTrial({
-                ratings: [selectedRating] // Save the selected rating
+                ratings: ratings // Save the selected rating
               });
             }, 250); // update delay time here
           });
