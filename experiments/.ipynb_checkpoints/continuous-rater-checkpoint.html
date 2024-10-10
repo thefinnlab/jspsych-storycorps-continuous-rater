@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Rating Experiment</title>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> 
+
+    <!-- LOAD FINNLAB SPECIFIC THINGS --> 
+    <script src="https://rcweb.dartmouth.edu/~f003rjw/jspsych_experiments/utils/javascript_utils.js" type="text/javascript"></script>
+
+    <!-- FOR LOADING EXTENSIONS --> 
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://unpkg.com/jspsych@7.3.3"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+    <script src="video-rating-plugin.js"></script>
+</head>
+<body>
+    <script>
+
+        //////////////////////////////////////////
+        ////// GENERAL EXPERIMENT FUNCTIONS //////
+        //////////////////////////////////////////
+
+        EXPERIMENT_NAME = 'continuous-rater'
+        SUB_ID = 'sub-000'
+
+        // we will change this later to be loaded in through experiment_info variable
+        WRITE_DATA_URL = 'https://rcweb.dartmouth.edu/~f003rjw/jspsych_experiments/utils/write_data.php'
+        OUTPUT_PATH = '/dartfs/rc/lab/F/FinnLab/public_html/data/'
+
+        function saveData(){
+            // Call this function at the end of trials to save out data
+            // may need to be modified because the amount of data we're saving here
+            // is much larger than other experiments
+
+            saveExperimentData(
+                jsPsych = jsPsych, 
+                write_data_url = WRITE_DATA_URL, 
+                output_path = pathJoin(parts=[
+                    OUTPUT_PATH, 
+                    EXPERIMENT_NAME,
+                    SUB_ID,
+                ]), 
+
+                // WE WILL WANT TO UPDATE THIS
+                output_filename = [SUB_ID, '_continuous-rater'].join(''),
+            );
+        }
+
+
+        /////////////////////////////////////////
+        ////// LOAD EXPERIMENT INFORMATION //////
+        /////////////////////////////////////////
+
+        stimulus_fn = [
+            'https://rcweb.dartmouth.edu/FinnLab/dallas/continuous-rater/presentation-orders/', 
+            SUB_ID,
+            '_continuous-rater.json'].join('')
+
+        console.log(stimulus_fn);
+
+        // use jquery to load the json file
+        $.ajax({
+            url: stimulus_fn,
+            dataType: 'json',
+            type: 'get',
+            cache: true,
+            async: false,
+            success: function (data) {
+                stimulus = data; // all information from the json is loaded into the variable stimulus
+            }
+          });
+
+        // in google chrome --> you can access logs by right-clicking a page, clicking "Inspect", then "Console"
+        console.log(stimulus)
+
+        // replace the /dartfs/ paths with those accessible through rc-web
+        html_string = "https://rcweb.dartmouth.edu/FinnLab/"
+        replace_string = "/dartfs/rc/lab/F/FinnLab/"
+        stimulus.forEach(item => item.stimulus = item.stimulus.replace(replace_string, html_string))
+
+        /////////////////////////////////////////
+        //////// START JSPSYCH INSTANCE  ////////
+        /////////////////////////////////////////
+
+        // Initialize jsPsych
+        var jsPsych = initJsPsych({
+            on_finish: function() {
+                jsPsych.data.displayData();
+            },
+            on_close: function(){ 
+                alert("The experiment isn't finished. Are you sure you want to leave the page?");
+            },
+            on_finish: function() {
+                // JUST FOR TESTING --> REMOVE WHEN RUNNING AN ACTUAL EXPERIMENT
+                jsPsych.data.displayData();
+            }
+        });
+
+        /////////////////////////////////////////
+        /////// SETUP EXPERIMENT TIMELINE ///////
+        /////////////////////////////////////////
+
+        var pre_trial = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;"><p>Some browsers now require that a user interacts with a web page before video or audio content will autoplay. Clicking the button below satisfies that requirement.</p><p>Without this trial, the video will load but not play.</p></div>',
+          choices: ['Continue']
+        }; 
+
+        // Video rating trial
+        var videoRatingTrial = {
+            type: jsPsychVideoRating,
+            sources: [jsPsych.timelineVariable('stimulus')],
+            width: 800,
+            height: 600,
+            rating_width: 800,
+            rating_height: 200,
+            rating_type: 'Enjoyment',
+            initial_rating: 50,
+            on_finish: function(){
+                saveData()
+            }
+        };
+
+        // Preload each video trial
+        var preload_video = {
+            type: jsPsychPreload,
+            video: jsPsych.timelineVariable('stimulus'),
+        }
+
+        // After a trial display this screen to let participant prepare
+        var next_trial = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;"><p>Press continue when you are ready for the next trial.</p></div>',
+          choices: ['Continue']
+        }
+
+        // the procedure can be thought of as a loop of trials, where each trial is set by
+        // the number of variables in "stimulus" 
+        var video_rating_procedure = {
+            timeline: [preload_video, videoRatingTrial, next_trial],
+            timeline_variables: stimulus
+        }
+
+        // Create timeline
+        var timeline = [pre_trial, video_rating_procedure];
+
+        // Run the experiment
+        jsPsych.run(timeline);
+
+    </script>
+</body>
+</html>

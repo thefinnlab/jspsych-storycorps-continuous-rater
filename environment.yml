@@ -1,0 +1,27 @@
+channels:
+  - defaults
+  - pytorch
+  - huggingface
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pytorch
+  - nibabel
+  - nilearn
+  - jupyter
+  - seaborn=0.13.0
+  - numpy=1.23
+  - pandas=1.2.2
+  - regex
+  - pip
+  - statsmodels
+  - huggingface_hub
+  - transformers=4.35.0
+  - scikit-learn
+  - scipy=1.12 
+  - matplotlib
+  - pip:
+    - torchaudio
+    - torchvision
+    - torchlens
+    - sentencepiece
