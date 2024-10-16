@@ -12,58 +12,66 @@ In this directory you can find the following:
 
 
 ### Experiment Design
-- this will be a two-part experiment, separated by 'Negation' and 'Pink Noise' trials
-- both parts of the experiment are identical
-- whether the first set of trials will be 'Negation' or 'Pink Noise' will be randomized - but participants will always do both
+- Pink noise: enjoyment, flow, interactivity
+- Negation: feeling of understanding the other’s mind, or vice versa
 
 
 
-### Shared Instructions
-# experiment starts with task instructions
-- add shared instructions
+### Welcome page
+[X] 
 
-### Specific Instructions
-- Update instructions to define rating types
-    - Negation: feeling of understanding the other’s mind, or vice versa
-        - understood/understanding of the other’s mind they feel at each timepoint
-        - did not understand at all — understood perfectly
-    - Pink noise: enjoyment, flow, interactivity
-        - for pink noise we care more about interactivity/enjoyment/flow
-        - awkward and unenjoyable — we were groovin    
+### Pink Noise (continuous-rater) instructions
+[X] add shared instructions
+    - you'll be listening to conversation all the way through and provide a continuous rating of how much you enjoyed the conversation
+    - definition page (similar to reminders): most enjoyable moment to least
+    - last page of instructions is the same as tommy's w/an image of the arrow keys
+
+### Practice with arrow keys
+[X] same as with tommy's (arrow key all the way up, great job, all the way down.)
+[X] no multiple choice quiz
+
+### Negation instructions
+[X] at various intervals, you'll be interrupted and asked how well you were understood by your partner and how well your partner was understood by you
+
+### Practice negation rating practice
+- need to make a plugin for this
+    - side-by-side: 'you understood partner with likert beneath' next to 'partner understood you' with likert beneath
+    - must provide answer to both
 
 ### Practice trial
-# participants will then practice on a common stimulus used as a way to standardize ratings
+# participants will then practice loop on a common stimulus used as a way to standardize ratings
 [X] accepts multiple audio clips
-- find practice stim
-- split into 10s chunks
+[X] make practice stim with katie
+- split into 15s chunks
 - add to timeline
-- rating-practice-plugin
-    - add rating history graph
+- slightly different plugins from actual experiment (actual experiment has wording specific to participant, practice is general)
+
+### great job page
+# (once practice trial completed)
+[X]
+
+### Trial Loop Structure
+# for each trial, participants will continuously rate audio clips (negation) and then rate pink noise (understand/understood) using the audio-rating-plugin
+- pinknoise-rating-plugin
+    - continuous-rater rating box (scale = most enjoyment - least enjoyment)
+        - modify so it shows the last 15s of ratings (even on next trial (so on first clip, the bar will be flat line, next trial the participant will see same history as end of previous trial))
+- after audio clip plays, move on to negation rating
+    - negation-rating-plugin
+        - side-by-side: 'you understood partner with likert beneath' next to 'partner understood you' with 0-10 likert beneath
+        - must provide answer to both
+- attention check if the pinknoise-rating indicator has not been updated in one minute (appears after negation rating)
+- repeats pinknoise-rating and negation-rating for each clip until end of convo
 
 
-### Trial Structure (part 1)
-# participants will listen to short audio clips using the audio-rating-plugin
-- audio-rating-plugin
-    [X] after clip plays, they will be able to provide ratings on a likert scale (0-10) - (important, this likert scale is always visible, but only clickable after the audio plays in full)
-    [X] clicking number autoplays next clip
-    [X] buttons have numbers directly on them
-    [X] once button is pressed, fills in black then slight delay before moving to next audio clip
-    [X] for real trials, the following is always on screen:
-        [X] for Negation: “Think back to how the conversation felt at this moment. If you were talking, how well do you think your partner understood you and your thoughts at this moment? If you were listening, how well do you think you understood your partner and their thoughts”
-        [X] for Pink Noise: “Think back to how the conversation felt at this moment. How much were you enjoying the conversation? Was it flowing smoothly?”
-    - rating history graph
-        - Update so listener can always see the trajectory they’ve made so far
-        - updates from right to left
 
-### Trial Structure (part 2)
-# same trial structure as part 1, just using the other rating scale
-- jspsychinstructions page with information about the rating scale for other rating type
-- add in part 2 once part 1 is sound (should be copy-paste situation and swap out p1 with p2)
+### audio-splitter code
+- waiting on katie to send me an example .wav file
+- how audio will be split is still up in the air
 
 
 ####
 - preload stim?
-- comprehension check?
+- instructions to Katie's satisfaction
 - double check audio is spliting appropriately
 - data saving?
 - clean up code!

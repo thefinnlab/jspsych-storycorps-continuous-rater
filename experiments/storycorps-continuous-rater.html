@@ -10,14 +10,17 @@
     <!-- FOR LOADING EXTENSIONS --> 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
     <script src="https://unpkg.com/jspsych@7.3.3"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js script -->
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.2"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
     <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.4"></script>
     <script src="comprehension-check-plugin.js"></script>
-    <script src="rating-practice-plugin.js"></script>
-    <script src="audio-rating-plugin.js"></script>
+    <script src="pinknoise-rating-plugin.js"></script>
+    <script src="practice-pinknoise-rating-plugin.js"></script>
+    <script src="negation-rating-plugin.js"></script>
+    <script src="practice-negation-rating-plugin.js"></script>
+    <script src="highest-lowest-rating-plugin.js"></script>
+
 </head>
 <body>
     <script>
@@ -25,9 +28,10 @@
         //////////////////////////////////////////
         ////// GENERAL EXPERIMENT FUNCTIONS //////
         //////////////////////////////////////////
+        SUB_ID = 'sub-000' // CHANGE FOR GIVEN PARTICIPANT
+
 
         EXPERIMENT_NAME = 'storycorps-continuous-rater'
-        SUB_ID = 'sub-000'
 
         // we will change this later to be loaded in through experiment_info variable
         WRITE_DATA_URL = 'https://rcweb.dartmouth.edu/~f003rjw/jspsych_experiments/utils/write_data.php'
@@ -57,7 +61,40 @@
         ////// LOAD EXPERIMENT INFORMATION //////
         /////////////////////////////////////////
 
-        //// Practice stimulus information
+        /////////////////////////////////////////
+        ////////// STIMULUS INFORMATION /////////
+        /////////////////////////////////////////
+        stimulus_fn = [
+            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/presentation-orders/', 
+            SUB_ID,
+            '_storycorps-continuous-rater.json'].join('')
+
+        console.log(stimulus_fn);
+
+        // use jquery to load the json file
+        $.ajax({
+            url: stimulus_fn,
+            dataType: 'json',
+            type: 'get',
+            cache: true,
+            async: false,
+            success: function (data) {
+                stimulus = data; // all information from the json is loaded into the variable stimulus
+            }
+          });
+
+        // in google chrome --> you can access logs by right-clicking a page, clicking "Inspect", then "Console"
+        console.log(stimulus)
+
+        // replace the /dartfs/ paths with those accessible through rc-web
+        html_string = "https://rcweb.dartmouth.edu/FinnLab/"
+        replace_string = "/dartfs/rc/lab/F/FinnLab/"
+        stimulus.forEach(item => item.stimulus = item.stimulus.replace(replace_string, html_string))
+
+        /////////////////////////////////////////
+        ///// LOAD PRACTICE STIM INFORMATION ////
+        /////////////////////////////////////////
+
         practice_stimulus_fn = [
             'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/practice-audio-file-orders/', 
             SUB_ID,
@@ -85,200 +122,9 @@
         replace_string = "/dartfs/rc/lab/F/FinnLab/"
         practice_stimulus.forEach(item => item.stimulus = item.stimulus.replace(replace_string, html_string))
 
-        /// Practice rating information
-        practice_rating_fn = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/practice-rating-orders/', 
-            SUB_ID,
-            '_storycorps-continuous-rater.json'].join('')
-
-        console.log(practice_rating_fn);
-        
-
-        // use jquery to load the json file
-        $.ajax({
-            url: practice_rating_fn,
-            dataType: 'json',
-            type: 'get',
-            cache: true,
-            async: false,
-            success: function (practice_rating_data) {
-                practice_rating = practice_rating_data; // all information from the json is loaded into the variable rating
-            }
-          });
-
-        // in google chrome --> you can access logs by right-clicking a page, clicking "Inspect", then "Console"
-        console.log(practice_rating)
-
-
-        //// Stimulus information
-        stimulus_fn = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/audio-file-orders/', 
-            SUB_ID,
-            '_storycorps-continuous-rater.json'].join('')
-
-        console.log(stimulus_fn);
-
-        // use jquery to load the json file
-        $.ajax({
-            url: stimulus_fn,
-            dataType: 'json',
-            type: 'get',
-            cache: true,
-            async: false,
-            success: function (data) {
-                stimulus = data; // all information from the json is loaded into the variable stimulus
-            }
-          });
-
-        // in google chrome --> you can access logs by right-clicking a page, clicking "Inspect", then "Console"
-        console.log(stimulus)
-
-        // replace the /dartfs/ paths with those accessible through rc-web
-        html_string = "https://rcweb.dartmouth.edu/FinnLab/"
-        replace_string = "/dartfs/rc/lab/F/FinnLab/"
-        stimulus.forEach(item => item.stimulus = item.stimulus.replace(replace_string, html_string))
-
-
-        /////////////////////////////////////////
-        ////// LOAD RATING PART 1 INFORMATION //////
-        /////////////////////////////////////////
-        rating_fn_p1 = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/rating-orders/', 
-            SUB_ID,
-            '_storycorps-continuous-rater_part-1.json'].join('')
-
-        console.log(rating_fn_p1);
-        
-
-        // use jquery to load the json file
-        $.ajax({
-            url: rating_fn_p1,
-            dataType: 'json',
-            type: 'get',
-            cache: true,
-            async: false,
-            success: function (rating_data_p1) {
-                rating_p1 = rating_data_p1; // all information from the json is loaded into the variable rating
-            }
-          });
-
-        // in google chrome --> you can access logs by right-clicking a page, clicking "Inspect", then "Console"
-        console.log(rating_p1)
-
-        // replace the /dartfs/ paths with those accessible through rc-web
-        rating_p1.forEach(item => item.rating = item.rating.replace(replace_string, html_string))
-
-        var rating_type_path_p1 = rating_p1[0].rating
-        console.log(rating_type_path_p1);
-
-        /////////////////////////
-        // GET PART 1 TRIAL RATING DATA
-        /////////////////////////
-        let trialRatingType_p1 = rating_type_path_p1;
-
-        var trialRatingType_file_p1 = trialRatingType_p1.substring(trialRatingType_p1.lastIndexOf('/') + 1);
-
-        let this_trial_rating_fn_p1 = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/ratings/',
-            trialRatingType_file_p1].join('')
-
-        console.log(this_trial_rating_fn_p1);
-
-        // use jquery to load the json file
-        $.ajax({
-        url: this_trial_rating_fn_p1,
-        dataType: 'json',
-        type: 'get',
-        cache: true,
-        async: false,
-        success: function (this_trial_rating_data_p1) {
-            const ratingInfo_p1 = this_trial_rating_data_p1[0];
-
-            // Extract variables
-            trialRatingName_p1 = ratingInfo_p1.ratingType;
-            trialLowEnd_p1 = ratingInfo_p1.lowEnd;
-            trialHighEnd_p1 = ratingInfo_p1.highEnd;
-
-            // Log variables
-            console.log('Rating Type:', trialRatingName_p1);
-            console.log('Low End:', trialLowEnd_p1);
-            console.log('High End:', trialHighEnd_p1);
-        }
-        });
-
-        /////////////////////////////////////////
-        ////// LOAD RATING PART 2 INFORMATION //////
-        /////////////////////////////////////////
-        rating_fn_p2 = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/rating-orders/', 
-            SUB_ID,
-            '_storycorps-continuous-rater_part-2.json'].join('')
-
-        console.log(rating_fn_p2);
-        
-
-        // use jquery to load the json file
-        $.ajax({
-            url: rating_fn_p2,
-            dataType: 'json',
-            type: 'get',
-            cache: true,
-            async: false,
-            success: function (rating_data_p2) {
-                rating_p2 = rating_data_p2; // all information from the json is loaded into the variable rating
-            }
-          });
-
-        // in google chrome --> you can access logs by right-clicking a page, clicking "Inspect", then "Console"
-        console.log(rating_p2)
-
-        // replace the /dartfs/ paths with those accessible through rc-web
-        rating_p2.forEach(item => item.rating = item.rating.replace(replace_string, html_string))
-
-        var rating_type_path_p2 = rating_p2[0].rating
-        console.log(rating_type_path_p2);
-
-        /////////////////////////
-        // GET PART 2 TRIAL RATING DATA
-        /////////////////////////
-        let trialRatingType_p2 = rating_type_path_p2;
-
-        var trialRatingType_file_p2 = trialRatingType_p2.substring(trialRatingType_p2.lastIndexOf('/') + 1);
-
-        let this_trial_rating_fn_p2 = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/ratings/',
-            trialRatingType_file_p2].join('')
-
-        console.log(this_trial_rating_fn_p2);
-
-        // use jquery to load the json file
-        $.ajax({
-        url: this_trial_rating_fn_p2,
-        dataType: 'json',
-        type: 'get',
-        cache: true,
-        async: false,
-        success: function (this_trial_rating_data_p2) {
-            const ratingInfo_p2 = this_trial_rating_data_p2[0];
-
-            // Extract variables
-            trialRatingName_p2 = ratingInfo_p2.ratingType;
-            trialLowEnd_p2 = ratingInfo_p2.lowEnd;
-            trialHighEnd_p2 = ratingInfo_p2.highEnd;
-
-            // Log variables
-            console.log('Rating Type:', trialRatingName_p2);
-            console.log('Low End:', trialLowEnd_p2);
-            console.log('High End:', trialHighEnd_p2);
-        }
-        });
-
         /////////////////////////////////////////
         //////// START JSPSYCH INSTANCE  ////////
         /////////////////////////////////////////
-
-        // Create timeline
-        var timeline = [];
 
         // Initialize jsPsych
         var jsPsych = initJsPsych({
@@ -297,20 +143,9 @@
         /////////////////////////////////////////
         /////// SETUP EXPERIMENT TIMELINE ///////
         /////////////////////////////////////////
-
-        // Define comprehension thresholds.
-        var num_errors = 0;
-        var max_errors = 0;
-        var max_loops = 2;
-        var n_loops = 0;
-
-        let passed_comprehension = false;
-
-        console.log(num_errors);
-        console.log(max_errors);
-        console.log(max_loops);
-        console.log(n_loops);
-
+        
+        // Create timeline
+        var timeline = [];
 
         var welcome = {
             type: jsPsychInstructions,
@@ -321,241 +156,155 @@
             data: {function: 'Welcome' }
         };
         timeline.push(welcome);
-
-        var sharedInstructions = {
-            type: jsPsychInstructions,
-            pages: [
-            'placeholder for general experiment instructions.',
-            ],
-            show_clickable_nav: true,
-        };
-        // timeline.push(sharedInstructions);
-
+      
         /////////////////////////////////////////
-        // PART ONE PINK NOISE INSTRUCTIONS
-        /////////////////////////////////////////        
-        
-        // var pinknoise_rating_box = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/ XXXXXX .png" style="width:800px;height:auto;">';
+        //// PINK NOISE INSTR. and PRAC /////////
+        /////////////////////////////////////////
 
-        var instructions_pinknoise = {
+        var pinknoise_rating_box = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/pinknoise-rating-box.png" style="width:800px;height:auto;">';
+        var keyboard_image = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/keyboard.png" style="width:400px;height:auto;">';
+
+        var pinknoise_instructions = {
             type: jsPsychInstructions,
             pages: [
-                'Placeholder for pink noise related instructions.',
-            ],
-            show_clickable_nav: true,
-        };
-
-        var instructions_pinknoise_conditional_p1 = {
-            timeline: [
-                instructions_pinknoise,
-            ],
-            conditional_function: function(){
-                if(trialRatingName_p1 === 'Pink Noise'){
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        // Comprehension check
-        var pinknoise_comprehension_check = {
-            type: jsPsychComprehension,
-            prompts: [
-                '<b>question</b>',
-            ],
-            options: [
-                ['correct answer', 'incorrect answer'],
-            ],
-            correct: [
-                'correct answer',
-            ],
-        };
-
-        var pinknoise_comprehension_check_conditional_p1 = {
-            timeline: [pinknoise_comprehension_check],
-            conditional_function: function(){
-                if(n_loops < max_loops && trialRatingName_p1 === 'Pink Noise'){
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        var reminder_pinknoise = {
-            type: jsPsychInstructions,
-            pages: [
-                '<h3>SWITCH WITH PINK NOISE INFO Reminders:</h3>' + 
-                '<h3>The video makes me feel <i>positive</i> when...</h3>' +
-                '- I feel pleasant, happy, and/or excited' + '<br>' + '<br>' +
-                '<h3>The video makes me feel <i>negative</i> when...</h3>' +
-                '- I feel unpleasant, sad, and/or angry' + '<br>' + '<br><br>' +
+                'In this experiment you will be listening to a conversation all the way through and provide a continuous rating of how much you enjoyed the conversation.',
+                '<h3>The conversation made me feel <i>the most enjoyment</i> when...</h3>' +
+                '- XXXXXXX' + '<br>' + '<br>' +
+                '<h3>The video makes me feel <i>the least enjoyment</i> when...</h3>' +
+                '- XXXXX' + '<br>' + '<br><br>' +
                 '<i>When you have read the text above and understand what you will be rating, please continue.</i><br><br>',
-                
+                'As you rate the conversation, make sure you record whenever you experienced even a slight <b>increase</b> or a <b>decrease</b> in your <b>enjoyment</b>.',
+                'Along with each audio clip, you will be presented with a rating box that looks like this:<br><br>' + pinknoise_rating_box,
+                'You will use the up and down arrow keys on your keyboard to adjust the rating to reflect how much you were enjoying the conversation at a given point.<br><br>' 
+                + keyboard_image + '<br>' + '<br><br>' +
+                'You will always be able to view the past 15 seconds of your ratings.',
+                'Use the <b>up arrow</b> on your keyboard to record whenever there was an <b>increase</b> in how much you enjoyed the conversation.',
+                'Use the <b>down arrow</b> on your keyboard to record whenever there was a <b>decrease</b> in how much you enjoyed the conversation.',
+                'Let us now practice using your keyboard to indicate your rating.',
             ],
             show_clickable_nav: true,
         };
 
-        var reminder_pinknoise_conditional_p1 = {
-            timeline: [reminder_pinknoise],
-            conditional_function: function(){
-                if(trialRatingName_p1 === 'Pink Noise'){
-                    return true;
-                } else {
-                    return false;
-                }
+        var use_up = {
+            type: jsPsychHighestLowestRating,
+            rating_width: 800,
+            rating_height: 200,
+            rating_name: "Pink Noise",
+            high_end: "most enjoyment",
+            low_end: "least enjoyment",
+            initial_rating: 50,
+            rating_history_length: 1500,
+            direction: 'up',
+            on_finish: function(){
+                saveData()
             }
-        }
-
-        /////////////////////////////////////////
-        // PART ONE NEGATION INSTRUCTIONS
-        /////////////////////////////////////////
-        
-        // var pinknoise_rating_box = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/ XXXXXX .png" style="width:800px;height:auto;">';
-
-        var instructions_negation = {
-            type: jsPsychInstructions,
-            pages: [
-                'Placeholder for negation related instructions.',
-            ],
-            show_clickable_nav: true,
         };
 
-        var instructions_negation_conditional_p1 = {
+        var great_up = {
+        type: jsPsychInstructions,
+        pages: [
+            'Great! You just indicated the most enjoyment.',
+        ],
+        show_clickable_nav: true,
+        };
+
+        var use_down = {
+            type: jsPsychHighestLowestRating,
+            rating_width: 800,
+            rating_height: 200,
+            rating_name: "Pink Noise",
+            high_end: "most enjoyment",
+            low_end: "least enjoyment",
+            initial_rating: 50,
+            rating_history_length: 1500,
+            direction: 'down',
+            on_finish: function(){
+                saveData()
+            }
+        };
+
+        var great_down = {
+        type: jsPsychInstructions,
+        pages: [
+            'Great! You just indicated the least enjoyent.'
+        ],
+        show_clickable_nav: true,
+        };
+
+        var pinknoise_instructions_and_prac = {
             timeline: [
-                instructions_negation,
+                pinknoise_instructions,
+                use_up,
+                great_up,
+                use_down,
+                great_down,
             ],
-            conditional_function: function(){
-                if(trialRatingName_p1 === 'Negation'){
-                    return true;
-                } else {
-                    return false;
-                }
-            }
         }
 
-        // Comprehension check
-        var negation_comprehension_check = {
-            type: jsPsychComprehension,
-            prompts: [
-                '<b>question</b>',
-            ],
-            options: [
-                ['correct answer', 'incorrect answer'],
-            ],
-            correct: [
-                'correct answer',
-            ],
-        };
+        /////////////////////////////////////////
+        ////// NEGATION INSTR. and PRAC /////////
+        /////////////////////////////////////////
 
-        var negation_comprehension_check_conditional_p1 = {
-            timeline: [negation_comprehension_check],
-            conditional_function: function(){
-                if(n_loops < max_loops && trialRatingName_p1 === 'Negation'){
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        var reminder_negation = {
+        var negation_instructions = {
             type: jsPsychInstructions,
             pages: [
-                '<h3>SWITCH WITH NEGATION INFO Reminders:</h3>' + 
-                '<h3>The video makes me feel <i>positive</i> when...</h3>' +
-                '- I feel pleasant, happy, and/or excited' + '<br>' + '<br>' +
-                '<h3>The video makes me feel <i>negative</i> when...</h3>' +
-                '- I feel unpleasant, sad, and/or angry' + '<br>' + '<br><br>' +
+                'At various intervals, you will be interrupted and asked how well you were understood by your partner and how well your partner was understood by you.',
+                '<h3>I felt <i>I understood by my partner</i> when...</h3>' +
+                '- XXXXXXX' + '<br>' + '<br>' +
+                '<h3>I felt <i>my partner understood me</i> when...</h3>' +
+                '- XXXXX' + '<br>' + '<br><br>' +
                 '<i>When you have read the text above and understand what you will be rating, please continue.</i><br><br>',
-                
+                'You will be presented with two side-by-side scales numbered 0-10',
+                'You will use the each scale to provide how well you understood your partner and how well your partner understood you, respectively',
+                'Let us now practice providing these ratings.',
             ],
             show_clickable_nav: true,
         };
 
-        var reminder_negation_conditional_p1 = {
-            timeline: [reminder_negation],
-            conditional_function: function(){
-                if(trialRatingName_p1 === 'Negation'){
-                    return true;
-                } else {
-                    return false;
-                }
+        var negation_instructions_practice = {
+            type: jsPsychPracticeNegationRating,
+            on_finish: function(){
+                saveData()
             }
-        }
+        };
 
-        ////////////////////////////
-        // PART 1 INSTRUCTIONS ALL
-        ////////////////////////////
-
-        var instructions_help = {
+        var practice_trial_precursor = {
             type: jsPsychInstructions,
             pages: [
-                "<p>You did not answer all of the quiz questions correctly.</p><p>Please review the following instructions carefully and try again.</p>"
+                "Great job! Next, you will complete practice trials.",
             ],
             show_clickable_nav: true
         }
 
-        var instructions_help_conditional_p1 = {
+        var negation_instructions_and_prac = {
             timeline: [
-                instructions_help,
-                reminder_pinknoise_conditional_p1,
-                reminder_negation_conditional_p1
-            ],
-            conditional_function: function(){
-                if(n_loops > 0 && n_loops < max_loops){
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        }
-
-        var instructions_p1 = {
-            timeline: [
-                instructions_pinknoise_conditional_p1,
-                instructions_negation_conditional_p1,
+                negation_instructions,
+                negation_instructions_practice,
+                practice_trial_precursor
             ],
         }
-        timeline.push(instructions_p1);
+        timeline.push(negation_instructions_and_prac);
 
-        var instructions_loop_p1 = {
-            timeline: [
-                instructions_help_conditional_p1,
-                pinknoise_comprehension_check_conditional_p1,
-                negation_comprehension_check_conditional_p1,
-            ],
-            loop_function: function(data) {
-
-                // Extract number of errors.
-                // num_errors = data.values().slice(-1)[0].num_errors;
-                
-                let lastTrialData = data.values().slice(-1)[0];
-                let num_errors = lastTrialData ? lastTrialData.num_errors : 0;
-
-                // Check if instructions should repeat.
-                n_loops++;
-                if (num_errors > max_errors && n_loops >= max_loops) {
-                    return false;
-                } else if (num_errors > max_errors) {
-                    return true;
-                } else {
-                    passed_comprehension = true;
-                    console.log(passed_comprehension)
-                    return false;
-                }
-            }
-        }
-        timeline.push(instructions_loop_p1);
-
-
-        //// PRACTICE TRIALS
-        // practice audio rating trial
-        var practice_trial = {
-            type: jsPsychRatingPractice,
+        /////////////////////////////////////////
+        ///////////// PRACTICE TRIAL ////////////
+        /////////////////////////////////////////  
+        
+        var practice_pinknoise = {
+            type: jsPsychPracticePinknoiseRating,
             sources: [jsPsych.timelineVariable('practice_stimulus')],
-            rating_type: [jsPsych.timelineVariable('practice_rating')],
+            width: 800,
+            height: 600,
+            rating_width: 800,
+            rating_height: 200,
+            initial_rating: 50,
+            rating_history_length: 1500,
+            on_finish: function(){
+                saveData()
+            }
+        };
+
+        var practice_negation = {
+            type: jsPsychPracticeNegationRating,
             on_finish: function(){
                 saveData()
             }
@@ -573,7 +322,7 @@
         var practice_totalTrials = practice_stimulus.length;
 
         // Function to check if there is a next trial
-        function practice_hasNextTrial() {
+        function practiceHasNextTrial() {
             return practice_currentTrialIndex < practice_totalTrials - 1;
         }
 
@@ -581,50 +330,34 @@
         var practice_next_trial_conditional = {
             timeline: [next_trial],
             conditional_function: function(){
-                if(practice_hasNextTrial()){
+                if(practiceHasNextTrial()){
                     return true;
                 } else {
                     return false;
                 }
             },
             on_finish: function(){
-                practice_currentTrialIndex++;  // Increment trial index after each trial
+                practice_currentTrialIndex++;
             }
         };
 
-        var practice_timeline_variables = practice_stimulus.map((item, index) => {
-            return {
-                practice_stimulus: item.stimulus,
-                practice_rating: practice_rating[index].rating
-            };
-        });
-
-        var practice_rating_loop = {
+        var practice_rating_procedure_loop = {
             timeline: [
-                practice_trial,
+                practice_pinknoise,
+                practice_negation,
+                // conditional here? for when rating indicator hasn't moved?
                 practice_next_trial_conditional
             ],
-            timeline_variables: practice_timeline_variables,
-            conditional_function: function(){
-                if (passed_comprehension === false) {
-                    return false;
-                } else {
-                    return true;
-                }
-            },
+            timeline_variables: practice_stimulus,
         }
+        timeline.push(practice_rating_procedure_loop);
 
-        
-        //////
-        
-        var passed_comprehension_message = {
-            type: jsPsychInstructions,
-            pages: [
-                'Great job! Next, you will complete a practice trial.',
-            ],
-            show_clickable_nav: true
-        }
-        
+
+
+
+        /////////////////////////////////////////
+        ////////////// REAL TRIALS //////////////
+        /////////////////////////////////////////
         var post_practice_message = {
             type: jsPsychInstructions,
             pages: [
@@ -632,33 +365,24 @@
             ],
             show_clickable_nav: true
         }
+        timeline.push(post_practice_message);
 
-        var practice_trial_loop = {
-            timeline: [
-                passed_comprehension_message,
-                reminder_pinknoise_conditional_p1,
-                reminder_negation_conditional_p1,
-                practice_rating_loop,
-                post_practice_message,
-                reminder_pinknoise_conditional_p1,
-                reminder_negation_conditional_p1
-            ],
-            conditional_function: function(){
-                if (passed_comprehension === false) {
-                    return false;
-                } else {
-                    return true;
-                }
-            },
-        }
-        // timeline.push(practice_trial_loop);
-
-        
-        // Audio rating trial
-        var audioRatingTrial_p1 = {
-            type: jsPsychAudioRating,
+        var pinknoise_trial = {
+            type: jsPsychPinknoiseRating,
             sources: [jsPsych.timelineVariable('stimulus')],
-            rating_type: [jsPsych.timelineVariable('rating_p1')],
+            width: 800,
+            height: 600,
+            rating_width: 800,
+            rating_height: 200,
+            initial_rating: 50,
+            rating_history_length: 1500,
+            on_finish: function(){
+                saveData()
+            }
+        };
+
+        var negation_trial = {
+            type: jsPsychPracticeNegationRating,
             on_finish: function(){
                 saveData()
             }
@@ -684,61 +408,20 @@
                 }
             },
             on_finish: function(){
-                currentTrialIndex++;  // Increment trial index after each trial
+                currentTrialIndex++;
             }
         };
 
-        var timeline_variables_p1 = stimulus.map((item, index) => {
-            return {
-                stimulus: item.stimulus,
-                rating_p1: rating_p1[index].rating
-            };
-        });
-
-        var video_rating_procedure_loop_p1 = {
+        var rating_procedure_loop = {
             timeline: [
-                audioRatingTrial_p1,
+                pinknoise_trial,
+                negation_trial,
+                // conditional here? for when rating indicator hasn't moved?
                 next_trial_conditional
             ],
-            timeline_variables: timeline_variables_p1,
-            conditional_function: function(){
-                if (passed_comprehension === false) {
-                    return false;
-                } else {
-                    return true;
-                }
-            },
+            timeline_variables: practice_stimulus,
         }
-        timeline.push(video_rating_procedure_loop_p1);
-
-        var hit_max_attempts = {
-            type: jsPsychInstructions,
-            pages: [
-                "We're sorry, you've exceeded the maximum number of attempts.",
-            ],
-            show_clickable_nav: true
-        };
-
-        var hit_max_attempt_conditional = {
-            timeline: [hit_max_attempts],
-            conditional_function: function(){
-                if (passed_comprehension === false) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
-        timeline.push(hit_max_attempt_conditional);
-
-        var placeholder_demographics_questionnaire = {
-            type: jsPsychInstructions,
-            pages: [
-                "placeholder demographics questionnaire",
-            ],
-            show_clickable_nav: true
-        }
-        timeline.push(placeholder_demographics_questionnaire);
+        timeline.push(rating_procedure_loop);
 
         // Run the experiment
         jsPsych.run(timeline);

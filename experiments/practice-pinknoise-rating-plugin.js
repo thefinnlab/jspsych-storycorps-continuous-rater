@@ -1,8 +1,8 @@
-var jsPsychRatingPractice = (function (jspsych) {
+var jsPsychPracticePinknoiseRating = (function (jspsych) {
   "use strict";
 
   const info = {
-    name: 'audio-rating',
+    name: 'practice-pinknoise-rating',
     parameters: {
       sources: {
         type: jspsych.ParameterType.AUDIO,
@@ -10,16 +10,10 @@ var jsPsychRatingPractice = (function (jspsych) {
         default: undefined,
         description: 'The audio file(s) to play.'
       },
-      rating_type: {
-        type: jspsych.ParameterType.JSON,
-        pretty_name: 'Rating Type',
-        default: [],
-        description: 'The type of rating being measured.'
-      },
     }
   };
 
-  class RatingPracticePlugin {
+  class PracticePinknoisePlugin {
     constructor(jsPsych) {
       this.jsPsych = jsPsych;
     }
@@ -174,7 +168,7 @@ var jsPsychRatingPractice = (function (jspsych) {
     }
   }
 
-  RatingPracticePlugin.info = info;
+  PracticePinknoisePlugin.info = info;
 
-  return RatingPracticePlugin;
+  return PracticePinknoisePlugin;
 })(jsPsychModule);
