@@ -10,6 +10,30 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         default: undefined,
         description: 'The audio file(s) to play.'
       },
+      rating_width: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'Rating Width',
+        default: 800,
+        description: 'The width of the rating box in pixels.'
+      },
+      rating_height: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'Rating Height',
+        default: 200,
+        description: 'The height of the rating box in pixels.'
+      },
+      initial_rating: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'Initial Rating',
+        default: 50,
+        description: 'The initial rating value (0-100).'
+      },
+      rating_history_length: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'Rating History Length',
+        default: 1500, // default history length
+        description: 'The number of points in the rating history to display.'
+      }
     }
   };
 
@@ -20,9 +44,13 @@ var jsPsychPinknoiseRating = (function (jspsych) {
 
     trial(display_element, trial) {
       // Initialize variables
+      let rating_num = trial.initial_rating;
       let ratings = [];
-      let ratingData = {};
-      let lowEnd, highEnd, ratingName;
+      let times = [];
+      let stepSize = 2;
+      const stepAccel = 1.15;
+      let prevKeyCode;
+      let numbers = new Array(trial.rating_history_length).fill(rating_num);
 
       // Create audio element
       const audio = document.createElement('audio');
@@ -30,129 +58,147 @@ var jsPsychPinknoiseRating = (function (jspsych) {
       audio.src = trial.sources[0];
       audio.autoplay = true;
 
-      /////////////////////////
-      // GET TRIAL RATING DATA
-      /////////////////////////
-      let ratingType = trial.rating_type[0]; // example ratingType = /dartfs/rc/lab/F/FinnLab/dallas/continuous-rater/ratings/rating-type07.json
-
-      var ratingType_file = ratingType.substring(ratingType.lastIndexOf('/') + 1); // ex: should be something like 'rating-type07.json'
-
-      let trial_rating_fn = [
-        'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/ratings/',
-        ratingType_file].join('')
-
-      console.log(trial_rating_fn);
-
-
-      ////////////////////////////
-      // ADD CONDITIONAL TEXT
-      ////////////////////////////
-      const instructionsText = document.createElement('p');
-      instructionsText.style.textAlign = 'center';  // Center the text
-      instructionsText.style.fontSize = '18px';     // Adjust the font size
-      instructionsText.style.marginBottom = '20px'; // Add cushion (adjust value as needed)
-
-      instructionsText.textContent = "Think back to how the conversation felt at this moment. How much were you enjoying the conversation? Was it flowing smoothly?";
-    
-
-      // Create the Likert scale container
-      const likertScale = document.createElement('div');
-      likertScale.innerHTML = `
-        <div class="likert-scale">
-          <div class="first-anchor">${lowEnd}</div>
-          <div class="scale-container">
-            ${[...Array(11).keys()].map(i => `
-              <div class="scale-item">
-                <label class="scale-label" for="scale${i}">
-                  <input type="radio" name="scale" value="${i}" id="scale${i}" disabled>
-                  <span>${i}</span> <!-- Span to hold the number inside -->
-                </label>
-              </div>
-            `).join('')}
-          </div>
-          <div class="last-anchor">${highEnd}</div>
+      // Create rating box
+      const ratingBox = document.createElement('div');
+      ratingBox.innerHTML = `
+        <div class="rating-box" style="width: ${trial.rating_width}px;">
+          <div class="first-anchor">"most enjoyment"</div>
+          <svg id="rating-svg" viewBox="0 0 ${trial.rating_width} ${trial.rating_height}">
+            <line class="reference"
+              x1="0"
+              y1="${trial.rating_height / 2}"
+              x2="${trial.rating_width}"
+              y2="${trial.rating_height / 2}"
+            />
+            <path id="rating-path" d="" fill="none" stroke="gray" stroke-width="2"/>
+            <circle id="rating-indicator" cx="0" cy="${(100 - rating_num) / 100 * trial.rating_height}" r="5" fill="black"/>
+          </svg> 
+          <div class="last-anchor">"least enjoyment"</div>
         </div>
       `;
 
+      // add instructions text
+      const instructionsText = document.createElement('p');
+      instructionsText.style.textAlign = 'center';  // Center the text
+      instructionsText.style.fontSize = '18px';     // Adjust the font size
+      instructionsText.style.marginBottom = '75px'; // Add cushion (adjust value as needed)
+
+      instructionsText.textContent = "Think back to how the conversation felt at this moment. How much were you enjoying the conversation? Was it flowing smoothly?";
+  
       // Add elements to display
       display_element.innerHTML = '';
       display_element.appendChild(audio);
-      display_element.appendChild(conditionalText);
-      display_element.appendChild(likertScale);
-
-      // Create a canvas for the chart
-      const canvas = document.createElement('canvas');
-      canvas.id = 'ratingChart';
-      display_element.appendChild(canvas);
+      display_element.appendChild(instructionsText);
+      display_element.appendChild(ratingBox);
 
       // Add styles
       const styles = document.createElement('style');
       styles.innerHTML = `
-        .likert-scale {
-          display: flex;
-          align-items: center; /* Center items vertically */
+        .rating-box {
+          border: 1px solid #aaa;
+          background-color: rgba(192, 192, 192, 0.384);
+          border-radius: 2px;
+          box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+          padding-top: 1%;
+          padding-bottom: 1%;
+          margin: 0 auto; /* Centers the box horizontally */
         }
-
-        .scale-container {
-          display: flex; /* Use flexbox for horizontal layout */
-          justify-content: space-between; /* Distribute space evenly */
-          margin: 20px; /* Add some margin for spacing */
+        .reference {
+          stroke: rgba(192, 192, 192, 1.0);
+          stroke-width: 2px;
+          stroke-dasharray: 5;
+          z-index: -1;
         }
-
-        .scale-item {
-          display: flex;
-          flex-direction: column; /* Stack label and input vertically */
-          align-items: center; /* Center items horizontally */
-        }
-
-        .scale-item input[type="radio"] {
-          position: relative; /* Allow number to be placed inside */
-          width: 40px;
-          height: 40px;
-          margin: 20px;
-          appearance: none; /* Hide default radio button */
-          border: 2px solid #000; /* Custom styling */
-          border-radius: 50%; /* Make the radio a circle */
-        }
-
-        .scale-item input[type="radio"]:checked {
-          background-color: #000; /* Change background when selected */
-        }
-
-        .scale-label {
-          position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .scale-label span {
-          position: absolute;
-          top: 50%; /* Vertically center */
-          left: 50%; /* Horizontally center */
-          transform: translate(-50%, -50%); /* Correct centering */
-          font-size: 14px;
-          pointer-events: none; /* Make the number non-clickable */
+        svg {
+          border-top: 1px solid #aaa;
+          border-bottom: 1px solid #aaa;
+          background-color: white;
         }
       `;
       display_element.appendChild(styles);
 
+      // Function to update rating
+      const updateRating = (newRating) => {
+        rating_num = newRating;
+        ratings.push(rating_num);
+        times.push(audio.currentTime);
+        updateIndicator();
+      };
 
-      // Enable radio buttons when audio ends
+      // Function to update indicator position
+      const updateIndicator = () => {
+        const indicator = document.getElementById('rating-indicator');
+        indicator.setAttribute('cy', `${(100 - rating_num) / 100 * trial.rating_height}`);
+      };
+
+      // Function to update numbers array
+      const setNumbers = () => {
+        for (let i = numbers.length - 1; i >= 1; i--) {
+          numbers[i] = numbers[i - 1];
+        }
+        numbers[0] = 100 - rating_num;
+      };
+
+      // Function to update rating path
+      const updateRatingPath = () => {
+        const path = document.getElementById('rating-path');
+        const d = numbers.map((y, i) => {
+          const x = (i / trial.rating_history_length) * trial.rating_width; // scale x to fit width
+          return `${i === 0 ? 'M' : 'L'} ${x} ${(y / 100) * trial.rating_height}`;
+        }).join(' ');
+        path.setAttribute('d', d);
+      };      
+
+      // Event listener for key presses
+      const handleKeyPress = (e) => {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (e.key !== prevKeyCode) {
+            stepSize = 2;
+          }
+          prevKeyCode = e.key;
+
+          if (e.key === 'ArrowUp') {
+            updateRating(Math.min(rating_num + stepSize, 100));
+          } else {
+            updateRating(Math.max(rating_num - stepSize, 0));
+          }
+
+          stepSize *= stepAccel;
+        }
+      };
+
+      // Event listener for key up
+      const handleKeyUp = (e) => {
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          e.preventDefault();
+          stepSize = 2;
+        }
+      };
+
+      // Add event listeners
+      document.addEventListener('keydown', handleKeyPress);
+      document.addEventListener('keyup', handleKeyUp);
+
+      // Animation function
+      const animate = () => {
+        setNumbers();
+        updateRatingPath();
+        if (!audio.ended) {
+          requestAnimationFrame(animate);
+        }
+      };
+
+      // Start animation
+      requestAnimationFrame(animate);
+
+      // End trial when audio ends
       audio.addEventListener('ended', () => {
-        const radioButtons = likertScale.querySelectorAll('input[type="radio"]');
-        radioButtons.forEach(radio => {
-          radio.disabled = false; // Enable radio buttons
-          radio.addEventListener('change', () => {
-            // When a radio button is selected, end the trial
-            const selectedRating = parseInt(radio.value);
-            radio.style.backgroundColor = '#000'; // Button fills in black
-            setTimeout(() => {
-              this.jsPsych.finishTrial({
-                ratings: [selectedRating] // Save the selected rating
-              });
-            }, 250); // update delay time here
-          });
+        document.removeEventListener('keydown', handleKeyPress);
+        document.removeEventListener('keyup', handleKeyUp);
+        this.jsPsych.finishTrial({
+          ratings: ratings,
+          times: times,
         });
       });
     }

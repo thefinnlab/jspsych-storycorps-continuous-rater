@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Video Rating Experiment</title>
+    <title>Storycorps Audio Rating Experiment</title>
     <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> 
 
     <!-- LOAD FINNLAB SPECIFIC THINGS --> 
@@ -16,9 +16,9 @@
     <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.4"></script>
     <script src="comprehension-check-plugin.js"></script>
     <script src="pinknoise-rating-plugin.js"></script>
-    <script src="practice-pinknoise-rating-plugin.js"></script>
-    <script src="negation-rating-plugin.js"></script>
-    <script src="practice-negation-rating-plugin.js"></script>
+    <!-- <script src="practice-pinknoise-rating-plugin.js"></script> -->
+    <!-- <script src="negation-rating-plugin.js"></script> -->
+    <!-- <script src="practice-negation-rating-plugin.js"></script> -->
     <script src="highest-lowest-rating-plugin.js"></script>
 
 </head>
@@ -56,16 +56,11 @@
             );
         }
 
-
-        /////////////////////////////////////////
-        ////// LOAD EXPERIMENT INFORMATION //////
-        /////////////////////////////////////////
-
         /////////////////////////////////////////
         ////////// STIMULUS INFORMATION /////////
         /////////////////////////////////////////
         stimulus_fn = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/presentation-orders/', 
+            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/audio-file-orders/', 
             SUB_ID,
             '_storycorps-continuous-rater.json'].join('')
 
@@ -113,9 +108,6 @@
                 practice_stimulus = practice_data; // all information from the json is loaded into the variable stimulus
             }
           });
-
-        // in google chrome --> you can access logs by right-clicking a page, clicking "Inspect", then "Console"
-        console.log(practice_stimulus)
 
         // replace the /dartfs/ paths with those accessible through rc-web
         html_string = "https://rcweb.dartmouth.edu/FinnLab/"
@@ -170,7 +162,7 @@
                 'In this experiment you will be listening to a conversation all the way through and provide a continuous rating of how much you enjoyed the conversation.',
                 '<h3>The conversation made me feel <i>the most enjoyment</i> when...</h3>' +
                 '- XXXXXXX' + '<br>' + '<br>' +
-                '<h3>The video makes me feel <i>the least enjoyment</i> when...</h3>' +
+                '<h3>The audio makes me feel <i>the least enjoyment</i> when...</h3>' +
                 '- XXXXX' + '<br>' + '<br><br>' +
                 '<i>When you have read the text above and understand what you will be rating, please continue.</i><br><br>',
                 'As you rate the conversation, make sure you record whenever you experienced even a slight <b>increase</b> or a <b>decrease</b> in your <b>enjoyment</b>.',
@@ -245,70 +237,68 @@
         ////// NEGATION INSTR. and PRAC /////////
         /////////////////////////////////////////
 
-        var negation_instructions = {
-            type: jsPsychInstructions,
-            pages: [
-                'At various intervals, you will be interrupted and asked how well you were understood by your partner and how well your partner was understood by you.',
-                '<h3>I felt <i>I understood by my partner</i> when...</h3>' +
-                '- XXXXXXX' + '<br>' + '<br>' +
-                '<h3>I felt <i>my partner understood me</i> when...</h3>' +
-                '- XXXXX' + '<br>' + '<br><br>' +
-                '<i>When you have read the text above and understand what you will be rating, please continue.</i><br><br>',
-                'You will be presented with two side-by-side scales numbered 0-10',
-                'You will use the each scale to provide how well you understood your partner and how well your partner understood you, respectively',
-                'Let us now practice providing these ratings.',
-            ],
-            show_clickable_nav: true,
-        };
+        // var negation_instructions = {
+        //     type: jsPsychInstructions,
+        //     pages: [
+        //         'At various intervals, you will be interrupted and asked how well you were understood by your partner and how well your partner was understood by you.',
+        //         '<h3>I felt <i>I understood by my partner</i> when...</h3>' +
+        //         '- XXXXXXX' + '<br>' + '<br>' +
+        //         '<h3>I felt <i>my partner understood me</i> when...</h3>' +
+        //         '- XXXXX' + '<br>' + '<br><br>' +
+        //         '<i>When you have read the text above and understand what you will be rating, please continue.</i><br><br>',
+        //         'You will be presented with two side-by-side scales numbered 0-10',
+        //         'You will use the each scale to provide how well you understood your partner and how well your partner understood you, respectively',
+        //         'Let us now practice providing these ratings.',
+        //     ],
+        //     show_clickable_nav: true,
+        // };
 
-        var negation_instructions_practice = {
-            type: jsPsychPracticeNegationRating,
-            on_finish: function(){
-                saveData()
-            }
-        };
+        // var negation_instructions_practice = {
+        //     type: jsPsychPracticeNegationRating,
+        //     on_finish: function(){
+        //         saveData()
+        //     }
+        // };
 
-        var practice_trial_precursor = {
-            type: jsPsychInstructions,
-            pages: [
-                "Great job! Next, you will complete practice trials.",
-            ],
-            show_clickable_nav: true
-        }
+        // var practice_trial_precursor = {
+        //     type: jsPsychInstructions,
+        //     pages: [
+        //         "Great job! Next, you will complete practice trials.",
+        //     ],
+        //     show_clickable_nav: true
+        // }
 
-        var negation_instructions_and_prac = {
-            timeline: [
-                negation_instructions,
-                negation_instructions_practice,
-                practice_trial_precursor
-            ],
-        }
-        timeline.push(negation_instructions_and_prac);
+        // var negation_instructions_and_prac = {
+        //     timeline: [
+        //         negation_instructions,
+        //         negation_instructions_practice,
+        //         practice_trial_precursor
+        //     ],
+        // }
+        // timeline.push(negation_instructions_and_prac);
 
         /////////////////////////////////////////
         ///////////// PRACTICE TRIAL ////////////
         /////////////////////////////////////////  
         
-        var practice_pinknoise = {
-            type: jsPsychPracticePinknoiseRating,
-            sources: [jsPsych.timelineVariable('practice_stimulus')],
-            width: 800,
-            height: 600,
-            rating_width: 800,
-            rating_height: 200,
-            initial_rating: 50,
-            rating_history_length: 1500,
-            on_finish: function(){
-                saveData()
-            }
-        };
+        // var practice_pinknoise = {
+        //     type: jsPsychPracticePinknoiseRating,
+        //     sources: [jsPsych.timelineVariable('practice_stimulus')],
+        //     rating_width: 800,
+        //     rating_height: 200,
+        //     initial_rating: 50,
+        //     rating_history_length: 1500,
+        //     on_finish: function(){
+        //         saveData()
+        //     }
+        // };
 
-        var practice_negation = {
-            type: jsPsychPracticeNegationRating,
-            on_finish: function(){
-                saveData()
-            }
-        };
+        // var practice_negation = {
+        //     type: jsPsychPracticeNegationRating,
+        //     on_finish: function(){
+        //         saveData()
+        //     }
+        // };
 
         // After a trial display this screen to let participant prepare
         var next_trial = {
@@ -317,40 +307,40 @@
           choices: ['Continue']
         }
 
-        // Variable for checking whether there's another trial
-        var practice_currentTrialIndex = 0;
-        var practice_totalTrials = practice_stimulus.length;
+        // // Variable for checking whether there's another trial
+        // var practice_currentTrialIndex = 0;
+        // var practice_totalTrials = practice_stimulus.length;
 
-        // Function to check if there is a next trial
-        function practiceHasNextTrial() {
-            return practice_currentTrialIndex < practice_totalTrials - 1;
-        }
+        // // Function to check if there is a next trial
+        // function practiceHasNextTrial() {
+        //     return practice_currentTrialIndex < practice_totalTrials - 1;
+        // }
 
-        // Next trial conditional function
-        var practice_next_trial_conditional = {
-            timeline: [next_trial],
-            conditional_function: function(){
-                if(practiceHasNextTrial()){
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-            on_finish: function(){
-                practice_currentTrialIndex++;
-            }
-        };
+        // // Next trial conditional function
+        // var practice_next_trial_conditional = {
+        //     timeline: [next_trial],
+        //     conditional_function: function(){
+        //         if(practiceHasNextTrial()){
+        //             return true;
+        //         } else {
+        //             return false;
+        //         }
+        //     },
+        //     on_finish: function(){
+        //         practice_currentTrialIndex++;
+        //     }
+        // };
 
-        var practice_rating_procedure_loop = {
-            timeline: [
-                practice_pinknoise,
-                practice_negation,
-                // conditional here? for when rating indicator hasn't moved?
-                practice_next_trial_conditional
-            ],
-            timeline_variables: practice_stimulus,
-        }
-        timeline.push(practice_rating_procedure_loop);
+        // var practice_rating_procedure_loop = {
+        //     timeline: [
+        //         practice_pinknoise,
+        //         practice_negation,
+        //         // conditional here? for when rating indicator hasn't moved?
+        //         practice_next_trial_conditional
+        //     ],
+        //     timeline_variables: practice_stimulus,
+        // }
+        // timeline.push(practice_rating_procedure_loop);
 
 
 
@@ -370,8 +360,6 @@
         var pinknoise_trial = {
             type: jsPsychPinknoiseRating,
             sources: [jsPsych.timelineVariable('stimulus')],
-            width: 800,
-            height: 600,
             rating_width: 800,
             rating_height: 200,
             initial_rating: 50,
@@ -381,12 +369,12 @@
             }
         };
 
-        var negation_trial = {
-            type: jsPsychPracticeNegationRating,
-            on_finish: function(){
-                saveData()
-            }
-        };
+        // var negation_trial = {
+        //     type: jsPsychPracticeNegationRating,
+        //     on_finish: function(){
+        //         saveData()
+        //     }
+        // };
 
         // Variable for checking whether there's another trial
         var currentTrialIndex = 0;
@@ -415,11 +403,11 @@
         var rating_procedure_loop = {
             timeline: [
                 pinknoise_trial,
-                negation_trial,
+                // negation_trial,
                 // conditional here? for when rating indicator hasn't moved?
                 next_trial_conditional
             ],
-            timeline_variables: practice_stimulus,
+            timeline_variables: stimulus,
         }
         timeline.push(rating_procedure_loop);
 
