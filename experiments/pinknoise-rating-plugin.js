@@ -33,7 +33,13 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         pretty_name: 'Rating History Length',
         default: 1500, // default history length
         description: 'The number of points in the rating history to display.'
-      }
+      },
+      rating_history: {
+        type: jspsych.ParameterType.ARRAY,
+        pretty_name: 'Rating History',
+        default: [],
+        description: 'Previous ratings.'
+      },
     }
   };
 
@@ -43,14 +49,15 @@ var jsPsychPinknoiseRating = (function (jspsych) {
     }
 
     trial(display_element, trial) {
-      // Initialize variables
+      let numbers = trial.rating_history;
       let rating_num = trial.initial_rating;
+
+      // Initialize variables
       let ratings = [];
       let times = [];
       let stepSize = 2;
       const stepAccel = 1.15;
       let prevKeyCode;
-      let numbers = new Array(trial.rating_history_length).fill(rating_num);
 
       // Create audio element
       const audio = document.createElement('audio');
@@ -62,7 +69,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
       const ratingBox = document.createElement('div');
       ratingBox.innerHTML = `
         <div class="rating-box" style="width: ${trial.rating_width}px;">
-          <div class="first-anchor">"most enjoyment"</div>
+          <div class="first-anchor">most enjoyment</div>
           <svg id="rating-svg" viewBox="0 0 ${trial.rating_width} ${trial.rating_height}">
             <line class="reference"
               x1="0"
@@ -73,7 +80,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
             <path id="rating-path" d="" fill="none" stroke="gray" stroke-width="2"/>
             <circle id="rating-indicator" cx="0" cy="${(100 - rating_num) / 100 * trial.rating_height}" r="5" fill="black"/>
           </svg> 
-          <div class="last-anchor">"least enjoyment"</div>
+          <div class="last-anchor">least enjoyment</div>
         </div>
       `;
 
@@ -136,7 +143,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         for (let i = numbers.length - 1; i >= 1; i--) {
           numbers[i] = numbers[i - 1];
         }
-        numbers[0] = 100 - rating_num;
+        numbers[0] = rating_num;
       };
 
       // Function to update rating path
@@ -144,7 +151,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         const path = document.getElementById('rating-path');
         const d = numbers.map((y, i) => {
           const x = (i / trial.rating_history_length) * trial.rating_width; // scale x to fit width
-          return `${i === 0 ? 'M' : 'L'} ${x} ${(y / 100) * trial.rating_height}`;
+          return `${i === 0 ? 'M' : 'L'} ${x} ${(1 - (y / 100)) * trial.rating_height}`;
         }).join(' ');
         path.setAttribute('d', d);
       };      
@@ -196,6 +203,11 @@ var jsPsychPinknoiseRating = (function (jspsych) {
       audio.addEventListener('ended', () => {
         document.removeEventListener('keydown', handleKeyPress);
         document.removeEventListener('keyup', handleKeyUp);
+
+        // store global values
+        initial_rating = numbers[0];
+        rating_history = numbers;
+
         this.jsPsych.finishTrial({
           ratings: ratings,
           times: times,

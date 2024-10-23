@@ -33,34 +33,25 @@ In this directory you can find the following:
 ### Negation instructions
 [X] at various intervals, you'll be interrupted and asked how well you were understood by your partner and how well your partner was understood by you
 
-### Practice negation rating practice
-- need to make a plugin for this
-    - side-by-side: 'you understood partner with likert beneath' next to 'partner understood you' with likert beneath
-    - must provide answer to both
-
 ### Practice trial
 # participants will then practice loop on a common stimulus used as a way to standardize ratings
 [X] accepts multiple audio clips
 [X] make practice stim with katie
-- split into 15s chunks
-- add to timeline
-- slightly different plugins from actual experiment (actual experiment has wording specific to participant, practice is general)
-
-### great job page
-# (once practice trial completed)
-[X]
+[X] practice-pinknoise-plugin
+[X] practice-negation-plugin
+[X] practice plugins only slightly different from actual experiment (actual experiment has wording specific to participant, practice is general)
 
 ### Trial Loop Structure
 # for each trial, participants will continuously rate audio clips (negation) and then rate pink noise (understand/understood) using the audio-rating-plugin
-- pinknoise-rating-plugin
+[X] pinknoise-rating-plugin
+    - while audio plays
     - continuous-rater rating box (scale = most enjoyment - least enjoyment)
         - modify so it shows the last 15s of ratings (even on next trial (so on first clip, the bar will be flat line, next trial the participant will see same history as end of previous trial))
-- after audio clip plays, move on to negation rating
-    - negation-rating-plugin
+[X] negation-rating-plugin
+    - after audio plays
         - side-by-side: 'you understood partner with likert beneath' next to 'partner understood you' with 0-10 likert beneath
         - must provide answer to both
-- attention check if the pinknoise-rating indicator has not been updated in one minute (appears after negation rating)
-- repeats pinknoise-rating and negation-rating for each clip until end of convo
+[X] repeats pinknoise-rating and negation-rating for each clip until end of convo
 
 
 
@@ -70,11 +61,13 @@ In this directory you can find the following:
 
 
 ####
+- attention check if the pinknoise-rating indicator has not been updated in one minute (appears after negation rating)
+- add practice stim to timeline (should be split into 15 s chunks)
 - preload stim?
-- instructions to Katie's satisfaction
+- instructions/text to Katie's satisfaction
 - double check audio is spliting appropriately
 - data saving?
 - clean up code!
-
+- bug hunt
 
 
