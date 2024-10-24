@@ -139,7 +139,7 @@
             show_clickable_nav: true,
             data: {function: 'Welcome' }
         };
-        timeline.push(welcome);
+        // timeline.push(welcome);
       
         /////////////////////////////////////////
         //// PINK NOISE INSTR. and PRAC /////////
@@ -224,7 +224,7 @@
                 great_down,
             ],
         }
-        timeline.push(pinknoise_instructions_and_prac);
+        // timeline.push(pinknoise_instructions_and_prac);
 
         /////////////////////////////////////////
         ////// NEGATION INSTR. and PRAC /////////
@@ -259,7 +259,7 @@
                 practice_trial_precursor,
             ],
         }
-        timeline.push(negation_instructions_and_prac);
+        // timeline.push(negation_instructions_and_prac);
 
         /////////////////////////////////////////
         ///////// FULL PRACTICE TRIAL ///////////
@@ -326,7 +326,7 @@
             ],
             timeline_variables: practice_stimulus,
         }
-        timeline.push(practice_rating_procedure_loop);
+        // timeline.push(practice_rating_procedure_loop);
 
         /////////////////////////////////////////
         ////////////// REAL TRIALS //////////////
@@ -343,6 +343,8 @@
         var initial_rating = 50;
         var rating_history_length = 1500;
         var rating_history = new Array(rating_history_length).fill(initial_rating);
+        
+        var noIndicatorMovement = false;
 
         var pinknoise_trial = {
             type: jsPsychPinknoiseRating,
@@ -352,11 +354,14 @@
             initial_rating: initial_rating,
             rating_history_length: rating_history_length,
             rating_history: rating_history,
+            noIndicatorMovement: noIndicatorMovement,
             on_start: function(trial) {
                 trial.initial_rating = initial_rating
                 trial.rating_history = rating_history
+                trial.noIndicatorMovement = noIndicatorMovement
             },
-            on_finish: function(){
+            on_finish: function(trial){
+                noIndicatorMovement = trial.noIndicatorMovement;
                 saveData();
             }
         };
@@ -371,7 +376,7 @@
 
         // Function to check if there is a next trial
         function hasNextTrial() {
-            return currentTrialIndex < totalTrials - 1;
+            return currentTrialIndex < totalTrials - 1; // if returns True, show next trial screen
         }
 
         // Next trial conditional function
@@ -389,11 +394,30 @@
             }
         };
 
+        // After a trial display this screen to let participant prepare
+        var no_movement = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;"><p>You have not updated your rating in one minute, please remember to update your ratings.</p></div>',
+          choices: ['Continue']
+        }
+
+        // No movement conditional function
+        var no_movement_conditional = {
+            timeline: [no_movement],
+            conditional_function: function(){
+                if(noIndicatorMovement){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+        };
+
         var rating_procedure_loop = {
             timeline: [
                 pinknoise_trial,
                 negation_trial,
-                // conditional here for when rating indicator hasn't moved?
+                no_movement_conditional,
                 next_trial_conditional
             ],
             timeline_variables: stimulus,

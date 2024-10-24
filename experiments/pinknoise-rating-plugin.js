@@ -40,12 +40,19 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         default: [],
         description: 'Previous ratings.'
       },
+      noIndicatorMovement: {
+        type: jspsych.ParameterType.BOOL,
+        pretty_name: 'No Indicator Movement',
+        default: false,
+        description: 'True if rating has not been updated in 60 seconds.'
+      },
     }
   };
 
   class PinknoiseRatingPlugin {
     constructor(jsPsych) {
       this.jsPsych = jsPsych;
+      this.lastTimeUpdate = 0; // Initialize with the current time
     }
 
     trial(display_element, trial) {
@@ -129,7 +136,13 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         rating_num = newRating;
         ratings.push(rating_num);
         times.push(audio.currentTime);
+        this.lastTimeUpdate = audio.currentTime;
         updateIndicator();
+      };
+
+      // Function to check if the rating indicator hasn't updated
+      const noIndicatorMovement = () => {
+        return (audio.currentTime - this.lastTimeUpdate) >= 6;
       };
 
       // Function to update indicator position
@@ -207,8 +220,14 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         // store global values
         initial_rating = numbers[0];
         rating_history = numbers;
+        console.log("movement: ", noIndicatorMovement()),
+        console.log("current time: ", audio.currentTime),
+        console.log("last time update: ", this.lastTimeUpdate),
+        console.log("elapsed time: ", audio.currentTime - this.lastTimeUpdate),
+        
 
         this.jsPsych.finishTrial({
+          noIndicatorMovement: noIndicatorMovement(),
           ratings: ratings,
           times: times,
         });

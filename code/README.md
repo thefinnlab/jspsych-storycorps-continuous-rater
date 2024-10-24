@@ -16,7 +16,6 @@ In this directory you can find the following:
 - Negation: feeling of understanding the other’s mind, or vice versa
 
 
-
 ### Welcome page
 [X] 
 
@@ -55,19 +54,19 @@ In this directory you can find the following:
 
 
 
-### audio-splitter code
-- waiting on katie to send me an example .wav file
-- how audio will be split is still up in the air
-
-
 ####
 - attention check if the pinknoise-rating indicator has not been updated in one minute (appears after negation rating)
+    - add this to pinknoise-rating-plugin and practice-pinknoise-plugin
+
 - add practice stim to timeline (should be split into 15 s chunks)
-- preload stim?
-- instructions/text to Katie's satisfaction
-- double check audio is spliting appropriately
-- data saving?
+- add "actual" stim to timeline and test
+- is it looking like we'll have to preload stim?
+- is the data saving is a format katie can use?
 - clean up code!
 - bug hunt
 
+Katie:
+- audio-splitter code
+- double check audio is spliting appropriately
+- instructions/text to Katie's satisfaction
 
