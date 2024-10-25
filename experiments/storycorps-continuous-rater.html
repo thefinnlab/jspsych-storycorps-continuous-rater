@@ -345,6 +345,8 @@
         var rating_history = new Array(rating_history_length).fill(initial_rating);
         
         var noIndicatorMovement = false;
+        var elapsed_time = 0
+        var max_time_no_movement = 60
 
         var pinknoise_trial = {
             type: jsPsychPinknoiseRating,
@@ -355,13 +357,17 @@
             rating_history_length: rating_history_length,
             rating_history: rating_history,
             noIndicatorMovement: noIndicatorMovement,
+            max_time_no_movement: max_time_no_movement,
+            elapsed_time: elapsed_time,
             on_start: function(trial) {
                 trial.initial_rating = initial_rating
                 trial.rating_history = rating_history
                 trial.noIndicatorMovement = noIndicatorMovement
+                trial.elapsed_time = elapsed_time
             },
             on_finish: function(trial){
                 noIndicatorMovement = trial.noIndicatorMovement;
+                elapsed_time = trial.elapsed_time;
                 saveData();
             }
         };
@@ -405,7 +411,7 @@
         var no_movement_conditional = {
             timeline: [no_movement],
             conditional_function: function(){
-                if(noIndicatorMovement){
+                if(elapsed_time >= max_time_no_movement){
                     return true;
                 } else {
                     return false;

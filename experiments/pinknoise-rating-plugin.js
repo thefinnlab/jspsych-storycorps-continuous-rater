@@ -46,20 +46,36 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         default: false,
         description: 'True if rating has not been updated in 60 seconds.'
       },
+      elapsed_time: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'Last Movement Elapsed Time.',
+        default: 0.0,
+        description: 'Time elapsed since the indicator was last updated.'
+      },
+      max_time_no_movement: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'Maximum Time Without Movement.',
+        default: 0.0,
+        description: 'Maximum amount of time without movement before attention check triggers.'
+      },
     }
   };
 
   class PinknoiseRatingPlugin {
     constructor(jsPsych) {
       this.jsPsych = jsPsych;
-      this.lastTimeUpdate = 0; // Initialize with the current time
     }
 
     trial(display_element, trial) {
+      // Initialize variables
       let numbers = trial.rating_history;
       let rating_num = trial.initial_rating;
+      let noIndicatorMovement = trial.noIndicatorMovement;
+      let elapsed_time = trial.elapsed_time;
+      let max_time_no_movement = trial.max_time_no_movement;
 
-      // Initialize variables
+
+      let lastTimeUpdate = 0
       let ratings = [];
       let times = [];
       let stepSize = 2;
@@ -136,13 +152,21 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         rating_num = newRating;
         ratings.push(rating_num);
         times.push(audio.currentTime);
-        this.lastTimeUpdate = audio.currentTime;
+        lastTimeUpdate = audio.currentTime;
+        elapsed_time = 0;
         updateIndicator();
       };
 
-      // Function to check if the rating indicator hasn't updated
-      const noIndicatorMovement = () => {
-        return (audio.currentTime - this.lastTimeUpdate) >= 6;
+      // Function to check if the rating indicator hasn't updated in x seconds when trial ends (returns true if not updated, false if has updated)
+      const noMovement = () => {
+        elapsed_time = updateElapsedTime()
+        return elapsed_time >= max_time_no_movement;
+      };
+
+      // Function to update elapsed_time
+      const updateElapsedTime = () => {
+        elapsed_time += (audio.currentTime - lastTimeUpdate);
+        return elapsed_time
       };
 
       // Function to update indicator position
@@ -220,16 +244,19 @@ var jsPsychPinknoiseRating = (function (jspsych) {
         // store global values
         initial_rating = numbers[0];
         rating_history = numbers;
-        console.log("movement: ", noIndicatorMovement()),
-        console.log("current time: ", audio.currentTime),
-        console.log("last time update: ", this.lastTimeUpdate),
-        console.log("elapsed time: ", audio.currentTime - this.lastTimeUpdate),
-        
+
+        noIndicatorMovement = noMovement();
+
+        console.log("no movement in last x secs?: ", noIndicatorMovement),
+        console.log("audio current time ", audio.currentTime),
+        console.log("last time update: ", lastTimeUpdate),
+        console.log("elapsed_time: ", elapsed_time),
 
         this.jsPsych.finishTrial({
-          noIndicatorMovement: noIndicatorMovement(),
+          noIndicatorMovement: noIndicatorMovement,
           ratings: ratings,
           times: times,
+          elapsed_time: elapsed_time,
         });
       });
     }
