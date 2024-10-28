@@ -139,7 +139,7 @@
             show_clickable_nav: true,
             data: {function: 'Welcome' }
         };
-        // timeline.push(welcome);
+        timeline.push(welcome);
       
         /////////////////////////////////////////
         //// PINK NOISE INSTR. and PRAC /////////
@@ -268,6 +268,10 @@
         var practice_rating_history_length = 1500;
         var practice_rating_history = new Array(practice_rating_history_length).fill(practice_initial_rating);
 
+        var practice_noIndicatorMovement = false;
+        var practice_elapsed_time = 0
+        var practice_max_time_no_movement = 9
+
         var practice_pinknoise = {
             type: jsPsychPracticePinknoiseRating,
             sources: [jsPsych.timelineVariable('practice_stimulus')],
@@ -276,22 +280,25 @@
             practice_initial_rating: practice_initial_rating,
             practice_rating_history_length: practice_rating_history_length,
             practice_rating_history: practice_rating_history,
+            practice_noIndicatorMovement: practice_noIndicatorMovement,
+            practice_max_time_no_movement: practice_max_time_no_movement,
+            practice_elapsed_time: practice_elapsed_time,
             on_start: function(trial) {
                 trial.practice_initial_rating = practice_initial_rating
                 trial.practice_rating_history = practice_rating_history
+                trial.practice_noIndicatorMovement = practice_noIndicatorMovement
+                trial.practice_elapsed_time = practice_elapsed_time
             },
+            on_finish: function(trial){
+                practice_noIndicatorMovement = trial.practice_noIndicatorMovement;
+                practice_elapsed_time = trial.practice_elapsed_time;
+                saveData();
+            }
         };
 
         var practice_negation = {
             type: jsPsychPracticeNegationRating,
         };
-
-        // After a trial display this screen to let participant prepare
-        var next_trial = {
-          type: jsPsychHtmlButtonResponse,
-          stimulus: '<div style="max-width:600px;"><p>Press continue when you are ready for the next trial.</p></div>',
-          choices: ['Continue']
-        }
 
         // // Variable for checking whether there's another trial
         var practice_currentTrialIndex = 0;
@@ -300,6 +307,13 @@
         // Function to check if there is a next trial
         function practiceHasNextTrial() {
             return practice_currentTrialIndex < practice_totalTrials - 1;
+        }
+
+        // After a trial display this screen to let participant prepare
+        var next_trial = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;"><p>Press continue when you are ready for the next trial.</p></div>',
+          choices: ['Continue']
         }
 
         // Next trial conditional function
@@ -317,16 +331,35 @@
             }
         };
 
+        // After a trial display this screen to let participant prepare
+        var no_movement = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;"><p>You have not updated your rating in one minute, please remember to update your ratings.</p></div>',
+          choices: ['Continue']
+        }
+
+        // No movement conditional function
+        var practice_no_movement_conditional = {
+            timeline: [no_movement],
+            conditional_function: function(){
+                if(practice_elapsed_time >= practice_max_time_no_movement){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+        };
+
         var practice_rating_procedure_loop = {
             timeline: [
                 practice_pinknoise,
                 practice_negation,
-                // conditional here for when rating indicator hasn't moved?
+                practice_no_movement_conditional,
                 practice_next_trial_conditional
             ],
             timeline_variables: practice_stimulus,
         }
-        // timeline.push(practice_rating_procedure_loop);
+        timeline.push(practice_rating_procedure_loop);
 
         /////////////////////////////////////////
         ////////////// REAL TRIALS //////////////
@@ -399,13 +432,6 @@
                 currentTrialIndex++;
             }
         };
-
-        // After a trial display this screen to let participant prepare
-        var no_movement = {
-          type: jsPsychHtmlButtonResponse,
-          stimulus: '<div style="max-width:600px;"><p>You have not updated your rating in one minute, please remember to update your ratings.</p></div>',
-          choices: ['Continue']
-        }
 
         // No movement conditional function
         var no_movement_conditional = {

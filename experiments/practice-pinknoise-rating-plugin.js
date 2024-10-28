@@ -40,6 +40,24 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
         default: [],
         description: 'Previous ratings.'
       },
+      practice_noIndicatorMovement: {
+        type: jspsych.ParameterType.BOOL,
+        pretty_name: 'No Indicator Movement',
+        default: false,
+        description: 'True if rating has not been updated in 60 seconds.'
+      },
+      practice_elapsed_time: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'Last Movement Elapsed Time.',
+        default: 0.0,
+        description: 'Time elapsed since the indicator was last updated.'
+      },
+      practice_max_time_no_movement: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'Maximum Time Without Movement.',
+        default: 0.0,
+        description: 'Maximum amount of time without movement before attention check triggers.'
+      },
     }
   };
 
@@ -51,8 +69,12 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
     trial(display_element, trial) {
       let practice_numbers = trial.practice_rating_history;
       let rating_num = trial.practice_initial_rating;
+      let practice_noIndicatorMovement = trial.practice_noIndicatorMovement;
+      let practice_elapsed_time = trial.practice_elapsed_time;
+      let practice_max_time_no_movement = trial.practice_max_time_no_movement;
 
       // Initialize variables
+      let lastTimeUpdate = 0
       let practice_ratings = [];
       let practice_times = [];
       let stepSize = 2;
@@ -129,7 +151,21 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
         rating_num = newRating;
         practice_ratings.push(rating_num);
         practice_times.push(audio.currentTime);
+        lastTimeUpdate = audio.currentTime;
+        practice_elapsed_time = 0;
         updateIndicator();
+      };
+
+      // Function to check if the rating indicator hasn't updated in x seconds when trial ends (returns true if not updated, false if has updated)
+      const noMovement = () => {
+        practice_elapsed_time = updateElapsedTime()
+        return practice_elapsed_time >= practice_max_time_no_movement;
+      };
+
+      // Function to update elapsed_time
+      const updateElapsedTime = () => {
+        practice_elapsed_time += (audio.currentTime - lastTimeUpdate);
+        return practice_elapsed_time
       };
 
       // Function to update indicator position
@@ -208,9 +244,18 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
         practice_initial_rating = practice_numbers[0];
         practice_rating_history = practice_numbers;
 
+        practice_noIndicatorMovement = noMovement();
+
+        console.log("no movement in last x secs?: ", practice_noIndicatorMovement),
+        console.log("audio current time ", audio.currentTime),
+        console.log("last time update: ", lastTimeUpdate),
+        console.log("elapsed_time: ", practice_elapsed_time),
+
         this.jsPsych.finishTrial({
+          practice_noIndicatorMovement: practice_noIndicatorMovement,
           practice_ratings: practice_ratings,
           practice_times: practice_times,
+          practice_elapsed_time: practice_elapsed_time,
         });
       });
     }

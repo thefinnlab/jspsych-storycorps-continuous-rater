@@ -247,10 +247,10 @@ var jsPsychPinknoiseRating = (function (jspsych) {
 
         noIndicatorMovement = noMovement();
 
-        console.log("no movement in last x secs?: ", noIndicatorMovement),
-        console.log("audio current time ", audio.currentTime),
-        console.log("last time update: ", lastTimeUpdate),
-        console.log("elapsed_time: ", elapsed_time),
+        // console.log("no movement in last x secs?: ", noIndicatorMovement),
+        // console.log("audio current time ", audio.currentTime),
+        // console.log("last time update: ", lastTimeUpdate),
+        // console.log("elapsed_time: ", elapsed_time),
 
         this.jsPsych.finishTrial({
           noIndicatorMovement: noIndicatorMovement,

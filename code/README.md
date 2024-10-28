@@ -51,13 +51,11 @@ In this directory you can find the following:
         - side-by-side: 'you understood partner with likert beneath' next to 'partner understood you' with 0-10 likert beneath
         - must provide answer to both
 [X] repeats pinknoise-rating and negation-rating for each clip until end of convo
-
+[X] attention check if the pinknoise-rating indicator has not been updated in one min. (appears after negation rating)
+    [X] add this to pinknoise-rating-plugin and practice-pinknoise-plugin
 
 
 ####
-- attention check if the pinknoise-rating indicator has not been updated in one minute (appears after negation rating)
-    - add this to pinknoise-rating-plugin and practice-pinknoise-plugin
-
 - add practice stim to timeline (should be split into 15 s chunks)
 - add "actual" stim to timeline and test
 - is it looking like we'll have to preload stim?
