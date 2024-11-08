@@ -28,8 +28,7 @@
         //////////////////////////////////////////
         ////// GENERAL EXPERIMENT FUNCTIONS //////
         //////////////////////////////////////////
-        SUB_ID = 'sub-000' // CHANGE FOR GIVEN PARTICIPANT
-
+        SUB_ID = 'sub-003' // CHANGE FOR GIVEN PARTICIPANT
 
         EXPERIMENT_NAME = 'storycorps-continuous-rater'
 
@@ -41,7 +40,11 @@
             // Call this function at the end of trials to save out data
             // may need to be modified because the amount of data we're saving here
             // is much larger than other experiments
-
+            console.log(pathJoin(parts=[
+                    OUTPUT_PATH, 
+                    EXPERIMENT_NAME,
+                    SUB_ID,
+                ]))
             saveExperimentData(
                 jsPsych = jsPsych, 
                 write_data_url = WRITE_DATA_URL, 
@@ -140,7 +143,7 @@
             data: {function: 'Welcome' }
         };
         timeline.push(welcome);
-      
+
         /////////////////////////////////////////
         //// PINK NOISE INSTR. and PRAC /////////
         /////////////////////////////////////////
@@ -270,7 +273,7 @@
 
         var practice_noIndicatorMovement = false;
         var practice_elapsed_time = 0
-        var practice_max_time_no_movement = 9
+        var practice_max_time_no_movement = 30
 
         var practice_pinknoise = {
             type: jsPsychPracticePinknoiseRating,
@@ -455,6 +458,13 @@
             timeline_variables: stimulus,
         }
         timeline.push(rating_procedure_loop);
+
+        var exp_end = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;"><p>Thank you for your participation! Please press "finish" and <b>do not exit out of the browser.</b> Thank you!</p></div>',
+          choices: ['Finish']
+        }
+        timeline.push(exp_end);
 
         // Run the experiment
         jsPsych.run(timeline);

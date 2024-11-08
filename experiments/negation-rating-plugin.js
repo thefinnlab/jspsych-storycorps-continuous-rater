@@ -10,14 +10,7 @@ var jsPsychNegationRating = (function (jspsych) {
       this.jsPsych = jsPsych;
     }
 
-    trial(display_element, trial) {
-      // Plug-in setup
-      const plugin_id_name = "jspsych-negation-rating";
-      const _join = function() {
-        const arr = Array.prototype.slice.call(arguments, _join.length);
-        return arr.join('-');
-      };
-
+    trial(display_element) {
 
       // Define CSS styling.
       const html = `
@@ -89,7 +82,7 @@ var jsPsychNegationRating = (function (jspsych) {
       display_element.appendChild(likertBox);
 
       // Top text
-      likertBox.innerHTML += '<h4>How fully did you feel</h4>';
+      likertBox.innerHTML += '<h4>Think back to how the conversation felt at this moment. How fully did you believe:</h4>';
 
       // Wrap the statements and scales in a container
       const statementContainer = document.createElement('div');
@@ -189,9 +182,16 @@ var jsPsychNegationRating = (function (jspsych) {
 
     handleSubmit() {
       if (this.selectedRatings.midLeft !== null && this.selectedRatings.midRight !== null) {
+
+        console.log("selected ratings: ", this.selectedRatings.midLeft),
+
         this.jsPsych.finishTrial({
-          ratings: [this.selectedRatings.midLeft, this.selectedRatings.midRight]
+          response_left: this.selectedRatings.midLeft,
+          response_right: this.selectedRatings.midRight,
         });
+
+        saveData();
+
       } else {
         alert('Please select ratings for both statements before continuing.');
       }

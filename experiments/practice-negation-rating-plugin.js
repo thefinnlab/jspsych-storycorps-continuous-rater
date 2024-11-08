@@ -2,7 +2,7 @@ var jsPsychPracticeNegationRating = (function (jspsych) {
   "use strict";
 
   const info = {
-    name: 'negation-rating',
+    name: 'practice-negation-rating',
   };
 
   class PracticeNegationRatingPlugin {
@@ -10,15 +10,7 @@ var jsPsychPracticeNegationRating = (function (jspsych) {
       this.jsPsych = jsPsych;
     }
 
-    trial(display_element, trial) {
-      // Plug-in setup
-      const plugin_id_name = "jspsych-negation-rating";
-      const _join = function() {
-        const arr = Array.prototype.slice.call(arguments, _join.length);
-        return arr.join('-');
-      };
-
-
+    trial(display_element) {
       // Define CSS styling.
       const html = `
       <style>
@@ -89,7 +81,7 @@ var jsPsychPracticeNegationRating = (function (jspsych) {
       display_element.appendChild(likertBox);
 
       // Top text
-      likertBox.innerHTML += '<h4>For a speaker of your choice, rate how fully you believe</h4>';
+      likertBox.innerHTML += '<h4>Imagine that you are the first speaker in this conversation. How fully do you believe:</h4>';
 
       // Wrap the statements and scales in a container
       const statementContainer = document.createElement('div');
@@ -135,6 +127,7 @@ var jsPsychPracticeNegationRating = (function (jspsych) {
         event.preventDefault(); // Prevent default form submission
         this.handleSubmit();
       });
+    
     }
 
     createLikertScale(scaleName) {
@@ -189,9 +182,14 @@ var jsPsychPracticeNegationRating = (function (jspsych) {
 
     handleSubmit() {
       if (this.selectedRatings.midLeft !== null && this.selectedRatings.midRight !== null) {
+
         this.jsPsych.finishTrial({
-          ratings: [this.selectedRatings.midLeft, this.selectedRatings.midRight]
+          practice_response_left: this.selectedRatings.midLeft,
+          practice_response_right: this.selectedRatings.midRight,
         });
+
+        saveData();
+
       } else {
         alert('Please select ratings for both statements before continuing.');
       }

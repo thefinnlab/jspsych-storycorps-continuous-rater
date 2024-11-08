@@ -113,7 +113,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
       instructionsText.style.fontSize = '18px';     // Adjust the font size
       instructionsText.style.marginBottom = '75px'; // Add cushion (adjust value as needed)
 
-      instructionsText.textContent = "Think back to how the conversation felt at this moment. How much were you enjoying the conversation? Was it flowing smoothly?";
+      instructionsText.textContent = "Think back to how the conversation felt at this moment. How much are you enjoying the conversation? Is it flowing smoothly?";
   
       // Add elements to display
       display_element.innerHTML = '';
@@ -254,7 +254,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
 
         this.jsPsych.finishTrial({
           noIndicatorMovement: noIndicatorMovement,
-          ratings: ratings,
+          pinknoise_ratings: ratings,
           times: times,
           elapsed_time: elapsed_time,
         });

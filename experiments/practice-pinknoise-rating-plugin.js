@@ -112,7 +112,7 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
       instructionsText.style.fontSize = '18px';     // Adjust the font size
       instructionsText.style.marginBottom = '75px'; // Add cushion (adjust value as needed)
 
-      instructionsText.textContent = "How much were the speakers enjoying the conversation? Was it flowing smoothly?";
+      instructionsText.textContent = "How much are the speakers enjoying the conversation in this moment? Is it flowing smoothly?";
   
       // Add elements to display
       display_element.innerHTML = '';
@@ -253,7 +253,7 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
 
         this.jsPsych.finishTrial({
           practice_noIndicatorMovement: practice_noIndicatorMovement,
-          practice_ratings: practice_ratings,
+          practice_pinknoise_ratings: practice_ratings,
           practice_times: practice_times,
           practice_elapsed_time: practice_elapsed_time,
         });
