@@ -81,7 +81,7 @@ var jsPsychPracticeNegationRating = (function (jspsych) {
       display_element.appendChild(likertBox);
 
       // Top text
-      likertBox.innerHTML += '<h4>Imagine that you are the first speaker in this conversation. How fully do you believe:</h4>';
+      likertBox.innerHTML += '<h4>Imagine that <b>you are the male speaker</b> in this conversation. How fully do you believe:</h4>';
 
       // Wrap the statements and scales in a container
       const statementContainer = document.createElement('div');
@@ -93,12 +93,12 @@ var jsPsychPracticeNegationRating = (function (jspsych) {
       // Add the first statement and scale
       const midLeftDiv = document.createElement('div');
       midLeftDiv.style.marginRight = '150px'; 
-      midLeftDiv.innerHTML = '<h4>they understood their partner</h4>';
+      midLeftDiv.innerHTML = '<h4>he understood his partner</h4>';
       midLeftDiv.appendChild(this.createLikertScale('midLeft'));
 
       // Add the second statement and scale
       const midRightDiv = document.createElement('div');
-      midRightDiv.innerHTML = '<h4>their partner understood them</h4>';
+      midRightDiv.innerHTML = '<h4>his partner understood him</h4>';
       midRightDiv.appendChild(this.createLikertScale('midRight'));
 
       // Append both to the container

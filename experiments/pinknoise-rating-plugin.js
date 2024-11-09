@@ -92,7 +92,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
       const ratingBox = document.createElement('div');
       ratingBox.innerHTML = `
         <div class="rating-box" style="width: ${trial.rating_width}px;">
-          <div class="first-anchor">most enjoyment</div>
+          <div class="first-anchor">Most Enjoyment</div>
           <svg id="rating-svg" viewBox="0 0 ${trial.rating_width} ${trial.rating_height}">
             <line class="reference"
               x1="0"
@@ -103,7 +103,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
             <path id="rating-path" d="" fill="none" stroke="gray" stroke-width="2"/>
             <circle id="rating-indicator" cx="0" cy="${(100 - rating_num) / 100 * trial.rating_height}" r="5" fill="black"/>
           </svg> 
-          <div class="last-anchor">least enjoyment</div>
+          <div class="last-anchor">Least Enjoyment</div>
         </div>
       `;
 
@@ -113,7 +113,7 @@ var jsPsychPinknoiseRating = (function (jspsych) {
       instructionsText.style.fontSize = '18px';     // Adjust the font size
       instructionsText.style.marginBottom = '75px'; // Add cushion (adjust value as needed)
 
-      instructionsText.textContent = "Think back to how the conversation felt at this moment. How much are you enjoying the conversation? Is it flowing smoothly?";
+      instructionsText.textContent = "Think back to how the conversation felt at this moment. How much are you enjoying the conversation? Is it flowing smoothly? Do you feel like you are connecting with the other person?";
   
       // Add elements to display
       display_element.innerHTML = '';

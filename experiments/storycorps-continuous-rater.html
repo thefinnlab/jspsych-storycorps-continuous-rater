@@ -154,17 +154,15 @@
         var pinknoise_instructions = {
             type: jsPsychInstructions,
             pages: [
-                'In this experiment you will be listen to a conversation all the way through and provide a continuous rating of how much you enjoyed the conversation.',
-                '<h3>The conversation made me feel <i>the most enjoyment</i> when...</h3>' +
-                '- XXXXXXX' + '<br>' + '<br>' +
-                '<h3>The audio makes me feel <i>the least enjoyment</i> when...</h3>' +
-                '- XXXXX' + '<br>' + '<br><br>' +
-                '<i>When you have read the text above and understand what you will be rating, please continue.</i><br><br>',
-                'As you rate the conversation, make sure you record whenever you experienced even a slight <b>increase</b> or a <b>decrease</b> in your <b>enjoyment</b>.',
-                'Along with each audio clip, you will be presented with a rating box that looks like this:<br><br>' + pinknoise_rating_box,
+                'In this experiment, you’ll be listening to the StoryCorps One Small Step conversation that you recorded a few days ago.',
+                'As you listen, <b>try to remember how you felt at each moment of the conversation.</b> <br><br> You’ll be asked to provide a continuous rating of how much you were enjoying the conversation as it progressed.',
+                'To calibrate, <b>think of what a really enjoyable conversation feels like to you.</b> Maybe it’s talking with your best friend about a show you both like, or meeting a stranger you really hit it off with at a party. <b>Keep that feeling in mind as the maximum rating you could give.</b>',
+                'Now, <b>think of what a really unenjoyable conversation feels like to you.</b> Maybe it’s an awkward conversation with an untidy roommate, or an argument with a family-member. <b>Keep that feeling in mind as the minimum rating you could give.</b>',
+                '<i>When you understand what you will be rating, please press next.</i><br><br>',
+                'To provide your continuous ratings, you will use a rating box that looks like the one below while listening to each audio clip:<br><br>' + pinknoise_rating_box,
                 'You will use the up and down arrow keys on your keyboard to adjust the rating to reflect how much you were enjoying the conversation at a given point.<br><br>' 
                 + keyboard_image + '<br>' + '<br><br>' +
-                'You will always be able to view the past 15 seconds of your ratings.',
+                'You will always be able to view the past 20 seconds of your ratings.',
                 'Use the <b>up arrow</b> on your keyboard to record whenever there was an <b>increase</b> in how much you enjoyed the conversation.',
                 'Use the <b>down arrow</b> on your keyboard to record whenever there was a <b>decrease</b> in how much you enjoyed the conversation.',
                 'Let us now practice using your keyboard to indicate your rating.',
@@ -177,8 +175,8 @@
             rating_width: 800,
             rating_height: 200,
             rating_name: "enjoyment",
-            high_end: "most enjoyment",
-            low_end: "least enjoyment",
+            high_end: "Most Enjoyment",
+            low_end: "Least Enjoyment",
             initial_rating: 50,
             rating_history_length: 800,
             direction: 'up',
@@ -200,8 +198,8 @@
             rating_width: 800,
             rating_height: 200,
             rating_name: "enjoyment",
-            high_end: "most enjoyment",
-            low_end: "least enjoyment",
+            high_end: "Most Enjoyment",
+            low_end: "Least Enjoyment",
             initial_rating: 50,
             rating_history_length: 800,
             direction: 'down',
@@ -233,17 +231,18 @@
         ////// NEGATION INSTR. and PRAC /////////
         /////////////////////////////////////////
 
+        var negation_rating_example = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/negation-rating-example.png" style="width:800px;height:auto;">';
+        
         var negation_instructions = {
             type: jsPsychInstructions,
             pages: [
                 'At various intervals, you will be interrupted and asked how well you were understood by your partner and how well your partner was understood by you.',
-                '<h3>I felt <i>I understood by my partner</i> when...</h3>' +
-                '- XXXXXXX' + '<br>' + '<br>' +
-                '<h3>I felt <i>my partner understood me</i> when...</h3>' +
-                '- XXXXX' + '<br>' + '<br><br>' +
-                '<i>When you have read the text above and understand what you will be rating, please continue.</i><br><br>',
-                'You will be presented with two side-by-side scales numbered 0-10.',
-                'You will use the each scale to provide how well you understood your partner and how well your partner understood you, respectively.',
+                'To calibrate, think of what feeling understood vs misunderstood by your partner means to you. How accurate do you think strangers’ predictions about you are at baseline?',
+                'Now consider telling someone a story about participating in team sports a child. How understood would you feel if your partner asked about the role of teamwork or physical fitness in your adult life?',
+                '<i>When you understand what you will be rating, please press next.</i><br><br>',
+                'To provide your ratings, you will use two side-by-side scales numbered 0-10: <br><br>' + negation_rating_example,
+                'You will use the each scale to rate how well you understood your partner and how well your partner understood you, respectively.',
+                '<i>When you understand what you will be rating, please press next.</i><br><br>',
             ],
             show_clickable_nav: true,
         };
@@ -251,7 +250,9 @@
         var practice_trial_precursor = {
             type: jsPsychInstructions,
             pages: [
-                "Next, you will complete practice trials.",
+                "Great! You will now complete practice trials.",
+                "For the practice trials, please provide answers <b>from the perspective of the male speaker.</b>",
+                "Remember to use your arrow keys to provide continuous ratings. <br><br> <b>Press next when you are ready to begin.</b>",
             ],
             show_clickable_nav: true
         }
@@ -262,7 +263,7 @@
                 practice_trial_precursor,
             ],
         }
-        // timeline.push(negation_instructions_and_prac);
+        timeline.push(negation_instructions_and_prac);
 
         /////////////////////////////////////////
         ///////// FULL PRACTICE TRIAL ///////////
@@ -362,7 +363,7 @@
             ],
             timeline_variables: practice_stimulus,
         }
-        timeline.push(practice_rating_procedure_loop);
+        // timeline.push(practice_rating_procedure_loop);
 
         /////////////////////////////////////////
         ////////////// REAL TRIALS //////////////
@@ -370,7 +371,7 @@
         var post_practice_message = {
             type: jsPsychInstructions,
             pages: [
-                "Great job! Next, you will begin the actual experiment.",
+                "Great job! Next, you will begin the <b>actual experiment.</b>",
             ],
             show_clickable_nav: true
         }
