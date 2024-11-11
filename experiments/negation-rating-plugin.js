@@ -3,6 +3,20 @@ var jsPsychNegationRating = (function (jspsych) {
 
   const info = {
     name: 'negation-rating',
+    parameters: {
+      timer: {
+        type: jspsych.ParameterType.INT,
+        pretty_name: 'timer',
+        default: 20,
+        description: 'Amount of time (s) on timer'
+      },
+      negation_timeout: {
+        type: jspsych.ParameterType.BOOL,
+        pretty_name: 'negation timeout',
+        default: false,
+        description: 'Whether negation timed out on previous trial'
+      },
+    }
   };
 
   class NegationRatingPlugin {
@@ -10,7 +24,8 @@ var jsPsychNegationRating = (function (jspsych) {
       this.jsPsych = jsPsych;
     }
 
-    trial(display_element) {
+    trial(display_element, parameters) {
+      let timer = parameters.timer;
 
       // Define CSS styling.
       const html = `
@@ -20,6 +35,17 @@ var jsPsychNegationRating = (function (jspsych) {
           max-height: 100vh;
           overflow: hidden;
           position: fixed;
+        }
+        .timer {
+          font-size: 24px;
+          position: fixed;
+          top: 10px;
+          right: 10px; /* Position it 10px from the right of the screen */
+          padding: 10px;
+          background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+          color: white; /* White text */
+          border-radius: 5px; /* Rounded corners */
+          z-index: 9999; /* Ensure it appears above other elements */
         }
         .likert-box {
           position: absolute;
@@ -128,6 +154,9 @@ var jsPsychNegationRating = (function (jspsych) {
         event.preventDefault(); // Prevent default form submission
         this.handleSubmit();
       });
+
+      // start timer
+      this.startTimer(display_element, timer);
     }
 
     createLikertScale(scaleName) {
@@ -182,18 +211,54 @@ var jsPsychNegationRating = (function (jspsych) {
 
     handleSubmit() {
       if (this.selectedRatings.midLeft !== null && this.selectedRatings.midRight !== null) {
-
-        console.log("selected ratings: ", this.selectedRatings.midLeft),
-
+        this.trialSubmitted = true
         this.jsPsych.finishTrial({
           response_left: this.selectedRatings.midLeft,
           response_right: this.selectedRatings.midRight,
         });
-
         saveData();
-
       } else {
         alert('Please select ratings for both statements before continuing.');
+      }
+    }
+
+    startTimer(display_element, timer) {
+      const timerElement = document.createElement('div');
+      timerElement.className = 'timer';
+      timerElement.innerHTML = `<p>Time Remaining: <span id="timer">${timer}</span> seconds</p>`;
+      display_element.appendChild(timerElement);
+    
+      const timerSpan = document.getElementById('timer');
+    
+      // Timer logic
+      const interval = setInterval(() => {
+        if (timer <= 0) {
+          clearInterval(interval);
+          this.handleAutoSubmit();
+        } else {
+          timer--;
+          timerSpan.innerText = timer;
+        }
+      }, 1000);
+    }
+
+    handleAutoSubmit() {
+      if (this.trialSubmitted) {
+        return;
+      }
+    
+      if (this.selectedRatings.midLeft !== null && this.selectedRatings.midRight !== null) {
+        this.jsPsych.finishTrial({
+          response_left: this.selectedRatings.midLeft,
+          response_right: this.selectedRatings.midRight,
+          negation_timeout: false
+        });
+      } else {
+        this.jsPsych.finishTrial({
+          response_left: null,
+          response_right: null,
+          negation_timeout: true
+        });
       }
     }
   }

@@ -56,7 +56,7 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
         type: jspsych.ParameterType.INT,
         pretty_name: 'Maximum Time Without Movement.',
         default: 0.0,
-        description: 'Maximum amount of time without movement before attention check triggers.'
+        description: 'Maximum amount of time (seconds) without movement before attention check triggers.'
       },
     }
   };

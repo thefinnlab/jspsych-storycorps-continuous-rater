@@ -27,16 +27,159 @@
     <script>
 
         //////////////////////////////////////////
-        ////// GENERAL EXPERIMENT FUNCTIONS //////
+        //////////  EXPERIMENT VARIABLES /////////
         //////////////////////////////////////////
-        
-        EXPERIMENT_NAME = 'storycorps-continuous-rater'
         let STIMULUS;
         let PRACTICE_STIMULUS;
 
-        // we will change this later to be loaded in through experiment_info variable
+        // file paths
+        EXPERIMENT_NAME = 'storycorps-continuous-rater'
         WRITE_DATA_URL = 'https://rcweb.dartmouth.edu/~f003rjw/jspsych_experiments/utils/write_data.php'
         OUTPUT_PATH = '/dartfs/rc/lab/F/FinnLab/public_html/data/'
+        
+        // GENERAL TRIAL VARIABLES
+        var timer_start = 20
+
+        var next_trial = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;"><p>Press continue when you are ready for the next trial.</p></div>',
+          choices: ['Continue']
+        }
+
+        // PINK NOISE TRIAL VARIABLES
+        var pinknoise_rating_box = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/pinknoise-rating-box.png" style="width:800px;height:auto;">';
+        var keyboard_image = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/keyboard.png" style="width:400px;height:auto;">';
+
+        var pinknoise_instructions = {
+            type: jsPsychInstructions,
+            pages: [
+                'In this experiment, you’ll be listening to the StoryCorps One Small Step conversation that you recorded a few days ago.',
+                'As you listen, <b>try to remember how you felt at each moment of the conversation.</b> <br><br> You’ll be asked to provide a continuous rating of how much you were enjoying the conversation as it progressed.',
+                'To calibrate, <b>think of what a really enjoyable conversation feels like to you.</b> Maybe it’s talking with your best friend about a show you both like, or meeting a stranger you really hit it off with at a party. <b>Keep that feeling in mind as the maximum rating you could give.</b>',
+                'Now, <b>think of what a really unenjoyable conversation feels like to you.</b> Maybe it’s an awkward conversation with an untidy roommate, or an argument with a family-member. <b>Keep that feeling in mind as the minimum rating you could give.</b>',
+                '<i>When you understand what you will be rating, please press next.</i><br><br>',
+                'To provide your continuous ratings, you will use a rating box that looks like the one below while listening to each audio clip:<br><br>' + pinknoise_rating_box,
+                'You will use the up and down arrow keys on your keyboard to adjust the rating to reflect how much you were enjoying the conversation at a given point.<br><br>' 
+                + keyboard_image + '<br>' + '<br><br>' +
+                'You will always be able to view the past 20 seconds of your ratings.',
+                'Use the <b>up arrow</b> on your keyboard to record whenever there was an <b>increase</b> in how much you enjoyed the conversation.',
+                'Use the <b>down arrow</b> on your keyboard to record whenever there was a <b>decrease</b> in how much you enjoyed the conversation.',
+                'Let us now practice using your keyboard to indicate your rating.',
+            ],
+            show_clickable_nav: true,
+        };
+
+        var use_up = {
+            type: jsPsychHighestLowestRating,
+            rating_width: 800,
+            rating_height: 200,
+            rating_name: "enjoyment",
+            high_end: "Most Enjoyment",
+            low_end: "Least Enjoyment",
+            initial_rating: 50,
+            rating_history_length: 800,
+            direction: 'up',
+            on_finish: function(){
+                saveData(SUB_ID)
+            }
+        };
+
+        var great_up = {
+        type: jsPsychInstructions,
+            pages: [
+                'Great! You just indicated the most enjoyment.',
+            ],
+            show_clickable_nav: true,
+        };
+
+        var use_down = {
+            type: jsPsychHighestLowestRating,
+            rating_width: 800,
+            rating_height: 200,
+            rating_name: "enjoyment",
+            high_end: "Most Enjoyment",
+            low_end: "Least Enjoyment",
+            initial_rating: 50,
+            rating_history_length: 800,
+            direction: 'down',
+            on_finish: function(){
+                saveData(SUB_ID)
+            }
+        };
+
+        var great_down = {
+            type: jsPsychInstructions,
+            pages: [
+                'Great! You just indicated the least enjoyent.'
+            ],
+            show_clickable_nav: true,
+        };
+
+        // After a trial display this screen to let participant prepare
+        var no_movement = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;"><p>You have not updated your rating in one minute, please remember to update your ratings.</p></div>',
+          choices: ['Continue']
+        }
+
+        // NEGATION TRIAL VARIABLES
+        var negation_rating_example = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/negation-rating-example.png" style="width:800px;height:auto;">';
+
+        var negation_instructions = {
+            type: jsPsychInstructions,
+            pages: [
+                'At various intervals, you will be interrupted and asked how well you were understood by your partner and how well your partner was understood by you.',
+                'To calibrate, think of what feeling understood vs misunderstood by your partner means to you. How accurate do you think strangers’ predictions about you are at baseline?',
+                'Now consider telling someone a story about participating in team sports a child. How understood would you feel if your partner asked about the role of teamwork or physical fitness in your adult life?',
+                '<i>When you understand what you will be rating, please press next.</i><br><br>',
+                'To provide your ratings, you will use two side-by-side scales numbered 0-10: <br><br>' + negation_rating_example,
+                'You will use the each scale to rate how well you understood your partner and how well your partner understood you, respectively.',
+                '<i>When you understand what you will be rating, please press next.</i><br><br>',
+            ],
+            show_clickable_nav: true,
+        };
+
+        // After a trial display this screen to let participant prepare
+        var rating_timeout = {
+          type: jsPsychHtmlButtonResponse,
+          stimulus: '<div style="max-width:600px;">The 20 second response time has elapsed. For future trials, please respond with your first impressions!</p></div>',
+          choices: ['Continue']
+        }
+
+        // PRACTICE TRIAL VARIABLES
+        var practice_initial_rating = 50;
+        var practice_rating_history_length = 1500;
+        var practice_rating_history = new Array(practice_rating_history_length).fill(practice_initial_rating);
+        var practice_noIndicatorMovement = false;
+        var practice_elapsed_time = 0
+        var practice_max_time_no_movement = 30
+        var practice_currentTrialIndex = 0;
+        var practice_negation_timeout = false;
+
+        var practice_trial_precursor = {
+            type: jsPsychInstructions,
+            pages: [
+                "Great! You will now complete practice trials.",
+                "For the practice trials, please provide answers <b>from the perspective of the male speaker.</b>",
+                "Remember to use your arrow keys to provide continuous ratings. <br><br> <b>Press next when you are ready to begin.</b>",
+            ],
+            show_clickable_nav: true
+        }
+
+        // REAL TRIAL VARIABLES
+        var initial_rating = 50;
+        var rating_history_length = 1500;
+        var rating_history = new Array(rating_history_length).fill(initial_rating);
+        var noIndicatorMovement = false;
+        var elapsed_time = 0
+        var max_time_no_movement = 60
+        var currentTrialIndex = 0;
+        var negation_timeout = false;
+
+
+        //////////////////////////////////////////
+        ////// GENERAL EXPERIMENT FUNCTIONS //////
+        //////////////////////////////////////////
 
         function saveData(SUB_ID){
             // Call this function at the end of trials to save out data
@@ -61,10 +204,8 @@
             );
         }
 
-
-        // Function to load stimulus files after sub_id is set
         function loadStimulusFiles(SUB_ID) {
-
+            // Function to load stimulus files after sub_id is set
             stimulus_fn = [
                 'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/audio-file-orders/', 
                 SUB_ID,
@@ -108,7 +249,92 @@
 
             return {stimulus,  practice_stimulus}
         }
+
         
+        // Function to check if there is a next trial
+        function hasNextTrial(currentTrialIndex, stimulus) {
+            return currentTrialIndex < stimulus.length - 1; // if returns True, show next trial screen
+        }
+
+        // CONDITIONAL FUNCTIONS
+        // Practice next trial conditional function
+        var practice_next_trial_conditional = {
+            timeline: [next_trial],
+            conditional_function: function(){
+                if(hasNextTrial(practice_currentTrialIndex, PRACTICE_STIMULUS)){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            on_finish: function(){
+                practice_currentTrialIndex++;
+            }
+        };
+
+        // Real trial next trial conditional function
+        var next_trial_conditional = {
+            timeline: [next_trial],
+            conditional_function: function(){
+                if(hasNextTrial(currentTrialIndex, STIMULUS)){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+            on_finish: function(){
+                currentTrialIndex++;
+            }
+        };
+
+        // Practice no movement conditional function
+        var practice_no_movement_conditional = {
+            timeline: [no_movement],
+            conditional_function: function(){
+                if(practice_elapsed_time >= practice_max_time_no_movement){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+        };
+
+        // Real trial no movement conditional function
+        var no_movement_conditional = {
+            timeline: [no_movement],
+            conditional_function: function(){
+                if(elapsed_time >= max_time_no_movement){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+        };
+
+        // Practice negation rating timeout
+        var practice_rating_timeout_conditional = {
+            timeline: [rating_timeout],
+            conditional_function: function(){
+                if(practice_negation_timeout == true){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+        };
+
+        // Real trial negation rating timeout
+        var rating_timeout_conditional = {
+            timeline: [rating_timeout],
+            conditional_function: function(){
+                if(negation_timeout == true){
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+        };
+
         /////////////////////////////////////////
         //////// START JSPSYCH INSTANCE  ////////
         /////////////////////////////////////////
@@ -129,149 +355,7 @@
             }
         });
 
-        // welcome page
-        var welcome = {
-            type: jsPsychInstructions,
-            pages: [
-            'Welcome to the experiment. Click the button to begin.',
-            ],
-            show_clickable_nav: true,
-            data: {function: 'Welcome' }
-        };
-        // timeline.push(welcome);
-        
-        /////////////////////////////////////////
-        //// PINK NOISE INSTR. and PRAC /////////
-        /////////////////////////////////////////
-
-        var pinknoise_rating_box = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/pinknoise-rating-box.png" style="width:800px;height:auto;">';
-        var keyboard_image = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/keyboard.png" style="width:400px;height:auto;">';
-
-        var pinknoise_instructions = {
-            type: jsPsychInstructions,
-            pages: [
-                'In this experiment, you’ll be listening to the StoryCorps One Small Step conversation that you recorded a few days ago.',
-                'As you listen, <b>try to remember how you felt at each moment of the conversation.</b> <br><br> You’ll be asked to provide a continuous rating of how much you were enjoying the conversation as it progressed.',
-                'To calibrate, <b>think of what a really enjoyable conversation feels like to you.</b> Maybe it’s talking with your best friend about a show you both like, or meeting a stranger you really hit it off with at a party. <b>Keep that feeling in mind as the maximum rating you could give.</b>',
-                'Now, <b>think of what a really unenjoyable conversation feels like to you.</b> Maybe it’s an awkward conversation with an untidy roommate, or an argument with a family-member. <b>Keep that feeling in mind as the minimum rating you could give.</b>',
-                '<i>When you understand what you will be rating, please press next.</i><br><br>',
-                'To provide your continuous ratings, you will use a rating box that looks like the one below while listening to each audio clip:<br><br>' + pinknoise_rating_box,
-                'You will use the up and down arrow keys on your keyboard to adjust the rating to reflect how much you were enjoying the conversation at a given point.<br><br>' 
-                + keyboard_image + '<br>' + '<br><br>' +
-                'You will always be able to view the past 20 seconds of your ratings.',
-                'Use the <b>up arrow</b> on your keyboard to record whenever there was an <b>increase</b> in how much you enjoyed the conversation.',
-                'Use the <b>down arrow</b> on your keyboard to record whenever there was a <b>decrease</b> in how much you enjoyed the conversation.',
-                'Let us now practice using your keyboard to indicate your rating.',
-            ],
-            show_clickable_nav: true,
-        };
-
-        var use_up = {
-            type: jsPsychHighestLowestRating,
-            rating_width: 800,
-            rating_height: 200,
-            rating_name: "enjoyment",
-            high_end: "Most Enjoyment",
-            low_end: "Least Enjoyment",
-            initial_rating: 50,
-            rating_history_length: 800,
-            direction: 'up',
-            on_finish: function(){
-                saveData(SUB_ID)
-            }
-        };
-
-        var great_up = {
-        type: jsPsychInstructions,
-        pages: [
-            'Great! You just indicated the most enjoyment.',
-        ],
-        show_clickable_nav: true,
-        };
-
-        var use_down = {
-            type: jsPsychHighestLowestRating,
-            rating_width: 800,
-            rating_height: 200,
-            rating_name: "enjoyment",
-            high_end: "Most Enjoyment",
-            low_end: "Least Enjoyment",
-            initial_rating: 50,
-            rating_history_length: 800,
-            direction: 'down',
-            on_finish: function(){
-                saveData(SUB_ID)
-            }
-        };
-
-        var great_down = {
-        type: jsPsychInstructions,
-        pages: [
-            'Great! You just indicated the least enjoyent.'
-        ],
-        show_clickable_nav: true,
-        };
-
-        var pinknoise_instructions_and_prac = {
-            timeline: [
-                pinknoise_instructions,
-                use_up,
-                great_up,
-                use_down,
-                great_down,
-            ],
-        }
-        // timeline.push(pinknoise_instructions_and_prac);
-
-        /////////////////////////////////////////
-        ////// NEGATION INSTR. and PRAC /////////
-        /////////////////////////////////////////
-
-        var negation_rating_example = '<img src="https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/experiments/negation-rating-example.png" style="width:800px;height:auto;">';
-        
-        var negation_instructions = {
-            type: jsPsychInstructions,
-            pages: [
-                'At various intervals, you will be interrupted and asked how well you were understood by your partner and how well your partner was understood by you.',
-                'To calibrate, think of what feeling understood vs misunderstood by your partner means to you. How accurate do you think strangers’ predictions about you are at baseline?',
-                'Now consider telling someone a story about participating in team sports a child. How understood would you feel if your partner asked about the role of teamwork or physical fitness in your adult life?',
-                '<i>When you understand what you will be rating, please press next.</i><br><br>',
-                'To provide your ratings, you will use two side-by-side scales numbered 0-10: <br><br>' + negation_rating_example,
-                'You will use the each scale to rate how well you understood your partner and how well your partner understood you, respectively.',
-                '<i>When you understand what you will be rating, please press next.</i><br><br>',
-            ],
-            show_clickable_nav: true,
-        };
-
-        var practice_trial_precursor = {
-            type: jsPsychInstructions,
-            pages: [
-                "Great! You will now complete practice trials.",
-                "For the practice trials, please provide answers <b>from the perspective of the male speaker.</b>",
-                "Remember to use your arrow keys to provide continuous ratings. <br><br> <b>Press next when you are ready to begin.</b>",
-            ],
-            show_clickable_nav: true
-        }
-
-        var negation_instructions_and_prac = {
-            timeline: [
-                negation_instructions,
-                practice_trial_precursor,
-            ],
-        }
-        // timeline.push(negation_instructions_and_prac);
-
-        /////////////////////////////////////////
-        ///////// FULL PRACTICE TRIAL ///////////
-        /////////////////////////////////////////  
-        var practice_initial_rating = 50;
-        var practice_rating_history_length = 1500;
-        var practice_rating_history = new Array(practice_rating_history_length).fill(practice_initial_rating);
-
-        var practice_noIndicatorMovement = false;
-        var practice_elapsed_time = 0
-        var practice_max_time_no_movement = 30
-
+        // PRACTICE PINKNOISE TRIALS
         var practice_pinknoise = {
             type: jsPsychPracticePinknoiseRating,
             sources: [jsPsych.timelineVariable('practice_stimulus')],
@@ -296,85 +380,24 @@
             }
         };
 
+        // PRACTICE NEGATION TRIALS
         var practice_negation = {
             type: jsPsychPracticeNegationRating,
-        };
-
-        // // Variable for checking whether there's another trial
-        var practice_currentTrialIndex = 0;
-
-        // Function to check if there is a next trial
-        function practiceHasNextTrial() {
-            return practice_currentTrialIndex < PRACTICE_STIMULUS.length - 1;
-        }
-
-        // After a trial display this screen to let participant prepare
-        var next_trial = {
-          type: jsPsychHtmlButtonResponse,
-          stimulus: '<div style="max-width:600px;"><p>Press continue when you are ready for the next trial.</p></div>',
-          choices: ['Continue']
-        }
-
-        // Next trial conditional function
-        var practice_next_trial_conditional = {
-            timeline: [next_trial],
-            conditional_function: function(){
-                if(practiceHasNextTrial()){
-                    return true;
-                } else {
-                    return false;
-                }
+            timer: timer_start,
+            practice_negation_timeout: practice_negation_timeout,
+            on_start: function(trial) {
+                trial.practice_negation_timeout = practice_negation_timeout
             },
-            on_finish: function(){
-                practice_currentTrialIndex++;
+            on_finish: function(trial){
+                practice_negation_timeout = trial.practice_negation_timeout;
+                saveData(SUB_ID);
             }
-        };
+        };        
 
-        // After a trial display this screen to let participant prepare
-        var no_movement = {
-          type: jsPsychHtmlButtonResponse,
-          stimulus: '<div style="max-width:600px;"><p>You have not updated your rating in one minute, please remember to update your ratings.</p></div>',
-          choices: ['Continue']
-        }
-
-        // No movement conditional function
-        var practice_no_movement_conditional = {
-            timeline: [no_movement],
-            conditional_function: function(){
-                if(practice_elapsed_time >= practice_max_time_no_movement){
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-        };
-
-        // timeline.push(practice_rating_procedure_loop);
-
-        /////////////////////////////////////////
-        ////////////// REAL TRIALS //////////////
-        /////////////////////////////////////////
-        
-        var post_practice_message = {
-            type: jsPsychInstructions,
-            pages: [
-                "Great job! Next, you will begin the <b>actual experiment.</b>",
-            ],
-            show_clickable_nav: true
-        }
-        // timeline.push(post_practice_message);
-
-        var initial_rating = 50;
-        var rating_history_length = 1500;
-        var rating_history = new Array(rating_history_length).fill(initial_rating);
-        
-        var noIndicatorMovement = false;
-        var elapsed_time = 0
-        var max_time_no_movement = 60
-
+        // REAL PINKNOISE TRIALS
         var pinknoise_trial = {
             type: jsPsychPinknoiseRating,
-            sources: [jsPsych.timelineVariable('STIMULUS')],
+            sources: [jsPsych.timelineVariable('stimulus')],
             rating_width: 800,
             rating_height: 200,
             initial_rating: initial_rating,
@@ -396,81 +419,96 @@
             }
         };
 
+        // REAL NEGATION TRIALS
         var negation_trial = {
             type: jsPsychNegationRating,
-        };
-
-        // Variable for checking whether there's another trial
-        var currentTrialIndex = 0;
-
-        // Function to check if there is a next trial
-        function hasNextTrial() {
-            return currentTrialIndex < STIMULUS.length - 1; // if returns True, show next trial screen
-        }
-
-        // Next trial conditional function
-        var next_trial_conditional = {
-            timeline: [next_trial],
-            conditional_function: function(){
-                if(hasNextTrial()){
-                    return true;
-                } else {
-                    return false;
-                }
+            timer: timer_start,
+            negation_timeout: negation_timeout,
+            on_start: function(trial) {
+                trial.negation_timeout = negation_timeout
+                console.log(negation_timeout)
             },
-            on_finish: function(){
-                currentTrialIndex++;
+            on_finish: function(trial){
+                negation_timeout = trial.negation_timeout;
+                console.log(trial.negation_timeout)
+                console.log(negation_timeout)
+                saveData(SUB_ID);
             }
         };
+        
 
-        // No movement conditional function
-        var no_movement_conditional = {
-            timeline: [no_movement],
-            conditional_function: function(){
-                if(elapsed_time >= max_time_no_movement){
-                    return true;
-                } else {
-                    return false;
-                }
-            },
-        };
+        function createExperiment(sub_id, practice_stimulus, stimulus){
 
-        var rating_procedure_loop = {
-            timeline: [
-                pinknoise_trial,
-                negation_trial,
-                no_movement_conditional,
-                next_trial_conditional
-            ],
-            timeline_variables: STIMULUS,
-        }
-        // timeline.push(rating_procedure_loop);
+            var welcome = {
+                type: jsPsychInstructions,
+                pages: [
+                'Welcome to the experiment. Click the button to begin.',
+                ],
+                show_clickable_nav: true,
+                data: {function: 'Welcome' }
+            };
 
-        var exp_end = {
-          type: jsPsychHtmlButtonResponse,
-          stimulus: '<div style="max-width:600px;"><p>Thank you for your participation! Please press "finish" and <b>do not exit out of the browser.</b> Thank you!</p></div>',
-          choices: ['Finish']
-        }
-        // timeline.push(exp_end);
+            var pinknoise_instructions_and_prac = {
+                timeline: [
+                    pinknoise_instructions,
+                    use_up,
+                    great_up,
+                    use_down,
+                    great_down,
+                ],
+            }
 
-        function createExperiment(sub_id, practice_stimulus){
+            var negation_instructions_and_prac = {
+                timeline: [
+                    negation_instructions,
+                    practice_trial_precursor,
+                ],
+            }
 
-            console.log(practice_stimulus)
-
-            var practice_rating_procedure_loop = {
+            var practice_experiment_loop = {
                 timeline: [
                     practice_pinknoise,
                     practice_negation,
+                    practice_rating_timeout_conditional,
                     practice_no_movement_conditional,
                     practice_next_trial_conditional
                 ],
                 timeline_variables: practice_stimulus,
             }
 
+            var post_practice_message = {
+                type: jsPsychInstructions,
+                pages: [
+                    "Great job! Next, you will begin the <b>actual experiment.</b>",
+                ],
+                show_clickable_nav: true
+            }
+            
+            var experiment_loop = {
+                timeline: [
+                    pinknoise_trial,
+                    negation_trial,
+                    rating_timeout_conditional,
+                    no_movement_conditional,
+                    next_trial_conditional
+                ],
+                timeline_variables: stimulus,
+            }
+
+            var exp_end = {
+                type: jsPsychHtmlButtonResponse,
+                stimulus: '<div style="max-width:600px;"><p>Thank you for your participation! Please press "finish" and <b>do not exit out of the browser.</b> Thank you!</p></div>',
+                choices: ['Finish']
+            }
+
             trials = [
                 welcome,
-                // pinknoise_instructions_and_prac,
-                practice_rating_procedure_loop,
+                pinknoise_instructions_and_prac,
+                negation_instructions_and_prac,
+                practice_experiment_loop,
+                post_practice_message,
+                experiment_loop,
+                exp_end
             ]
 
             for (let i = 0; i < trials.length; i++) {
@@ -478,7 +516,7 @@
             }
         }
 
-        // input SUB_ID
+        // Get subject ID, then create experiment
         var input_id = {
             type: jsPsychSurveyText,
             questions: [
@@ -493,10 +531,10 @@
                 STIMULUS = loadStimulusFiles(SUB_ID).stimulus;
                 PRACTICE_STIMULUS = loadStimulusFiles(SUB_ID).practice_stimulus;
 
-                createExperiment(SUB_ID, PRACTICE_STIMULUS);
+                createExperiment(SUB_ID, PRACTICE_STIMULUS, STIMULUS);
             }
         };
-        
+
         timeline.push(input_id);
 
         // Run the experiment
