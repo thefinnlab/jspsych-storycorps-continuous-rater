@@ -14,6 +14,7 @@
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
     <script src="https://unpkg.com/@jspsych/plugin-instructions@1.1.4"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.3"></script>
     <script src="comprehension-check-plugin.js"></script>
     <script src="pinknoise-rating-plugin.js"></script>
     <script src="practice-pinknoise-rating-plugin.js"></script>
@@ -28,15 +29,16 @@
         //////////////////////////////////////////
         ////// GENERAL EXPERIMENT FUNCTIONS //////
         //////////////////////////////////////////
-        SUB_ID = 'sub-003' // CHANGE FOR GIVEN PARTICIPANT
-
+        
         EXPERIMENT_NAME = 'storycorps-continuous-rater'
+        let STIMULUS;
+        let PRACTICE_STIMULUS;
 
         // we will change this later to be loaded in through experiment_info variable
         WRITE_DATA_URL = 'https://rcweb.dartmouth.edu/~f003rjw/jspsych_experiments/utils/write_data.php'
         OUTPUT_PATH = '/dartfs/rc/lab/F/FinnLab/public_html/data/'
 
-        function saveData(){
+        function saveData(SUB_ID){
             // Call this function at the end of trials to save out data
             // may need to be modified because the amount of data we're saving here
             // is much larger than other experiments
@@ -59,61 +61,54 @@
             );
         }
 
-        /////////////////////////////////////////
-        ////////// STIMULUS INFORMATION /////////
-        /////////////////////////////////////////
-        stimulus_fn = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/audio-file-orders/', 
-            SUB_ID,
-            '_storycorps-continuous-rater.json'].join('')
 
-        console.log(stimulus_fn);
+        // Function to load stimulus files after sub_id is set
+        function loadStimulusFiles(SUB_ID) {
 
-        // use jquery to load the json file
-        $.ajax({
-            url: stimulus_fn,
-            dataType: 'json',
-            type: 'get',
-            cache: true,
-            async: false,
-            success: function (data) {
-                stimulus = data; // all information from the json is loaded into the variable stimulus
-            }
-          });
-        console.log(stimulus);
+            stimulus_fn = [
+                'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/audio-file-orders/', 
+                SUB_ID,
+                '_storycorps-continuous-rater.json'].join('')
 
-        // replace the /dartfs/ paths with those accessible through rc-web
-        html_string = "https://rcweb.dartmouth.edu/FinnLab/"
-        replace_string = "/dartfs/rc/lab/F/FinnLab/"
-        stimulus.forEach(item => item.stimulus = item.stimulus.replace(replace_string, html_string))
+            practice_stimulus_fn = [
+                'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/practice-audio-file-orders/', 
+                SUB_ID,
+                '_storycorps-continuous-rater.json'].join('')
 
-        /////////////////////////////////////////
-        ///// LOAD PRACTICE STIM INFORMATION ////
-        /////////////////////////////////////////
+            // use jquery to load the json file
+            $.ajax({
+                url: stimulus_fn,
+                dataType: 'json',
+                type: 'get',
+                cache: true,
+                async: false,
+                success: function (data) {
+                    stimulus = data; // all information from the json is loaded into the variable stimulus
+                }
+            });
 
-        practice_stimulus_fn = [
-            'https://rcweb.dartmouth.edu/FinnLab/dallas/projects/storycorps-continuous-rater/practice-audio-file-orders/', 
-            SUB_ID,
-            '_storycorps-continuous-rater.json'].join('')
+            // use jquery to load the json file
+            $.ajax({
+                url: practice_stimulus_fn,
+                dataType: 'json',
+                type: 'get',
+                cache: true,
+                async: false,
+                success: function (practice_data) {
+                    practice_stimulus = practice_data; // all information from the json is loaded into the variable practice_stimulus
+                }
+            });
 
-        console.log(practice_stimulus_fn);
+            // replace the /dartfs/ paths with those accessible through rc-web
+            html_string = "https://rcweb.dartmouth.edu/FinnLab/"
+            replace_string = "/dartfs/rc/lab/F/FinnLab/"
+            
+            stimulus.forEach(item => item.stimulus = item.stimulus.replace(replace_string, html_string))
+            practice_stimulus.forEach(item => item.practice_stimulus = item.practice_stimulus.replace(replace_string, html_string))
 
-        // use jquery to load the json file
-        $.ajax({
-            url: practice_stimulus_fn,
-            dataType: 'json',
-            type: 'get',
-            cache: true,
-            async: false,
-            success: function (practice_data) {
-                practice_stimulus = practice_data; // all information from the json is loaded into the variable practice_stimulus
-            }
-          });
-        console.log(practice_stimulus);
-
-        // replace the /dartfs/ paths with those accessible through rc-web
-        practice_stimulus.forEach(item => item.practice_stimulus = item.practice_stimulus.replace(replace_string, html_string))
-
+            return {stimulus,  practice_stimulus}
+        }
+        
         /////////////////////////////////////////
         //////// START JSPSYCH INSTANCE  ////////
         /////////////////////////////////////////
@@ -134,6 +129,7 @@
             }
         });
 
+        // welcome page
         var welcome = {
             type: jsPsychInstructions,
             pages: [
@@ -142,8 +138,8 @@
             show_clickable_nav: true,
             data: {function: 'Welcome' }
         };
-        timeline.push(welcome);
-
+        // timeline.push(welcome);
+        
         /////////////////////////////////////////
         //// PINK NOISE INSTR. and PRAC /////////
         /////////////////////////////////////////
@@ -181,7 +177,7 @@
             rating_history_length: 800,
             direction: 'up',
             on_finish: function(){
-                saveData()
+                saveData(SUB_ID)
             }
         };
 
@@ -204,7 +200,7 @@
             rating_history_length: 800,
             direction: 'down',
             on_finish: function(){
-                saveData()
+                saveData(SUB_ID)
             }
         };
 
@@ -263,7 +259,7 @@
                 practice_trial_precursor,
             ],
         }
-        timeline.push(negation_instructions_and_prac);
+        // timeline.push(negation_instructions_and_prac);
 
         /////////////////////////////////////////
         ///////// FULL PRACTICE TRIAL ///////////
@@ -296,7 +292,7 @@
             on_finish: function(trial){
                 practice_noIndicatorMovement = trial.practice_noIndicatorMovement;
                 practice_elapsed_time = trial.practice_elapsed_time;
-                saveData();
+                saveData(SUB_ID);
             }
         };
 
@@ -306,11 +302,10 @@
 
         // // Variable for checking whether there's another trial
         var practice_currentTrialIndex = 0;
-        var practice_totalTrials = practice_stimulus.length;
 
         // Function to check if there is a next trial
         function practiceHasNextTrial() {
-            return practice_currentTrialIndex < practice_totalTrials - 1;
+            return practice_currentTrialIndex < PRACTICE_STIMULUS.length - 1;
         }
 
         // After a trial display this screen to let participant prepare
@@ -354,20 +349,12 @@
             },
         };
 
-        var practice_rating_procedure_loop = {
-            timeline: [
-                practice_pinknoise,
-                practice_negation,
-                practice_no_movement_conditional,
-                practice_next_trial_conditional
-            ],
-            timeline_variables: practice_stimulus,
-        }
         // timeline.push(practice_rating_procedure_loop);
 
         /////////////////////////////////////////
         ////////////// REAL TRIALS //////////////
         /////////////////////////////////////////
+        
         var post_practice_message = {
             type: jsPsychInstructions,
             pages: [
@@ -375,7 +362,7 @@
             ],
             show_clickable_nav: true
         }
-        timeline.push(post_practice_message);
+        // timeline.push(post_practice_message);
 
         var initial_rating = 50;
         var rating_history_length = 1500;
@@ -387,7 +374,7 @@
 
         var pinknoise_trial = {
             type: jsPsychPinknoiseRating,
-            sources: [jsPsych.timelineVariable('stimulus')],
+            sources: [jsPsych.timelineVariable('STIMULUS')],
             rating_width: 800,
             rating_height: 200,
             initial_rating: initial_rating,
@@ -405,7 +392,7 @@
             on_finish: function(trial){
                 noIndicatorMovement = trial.noIndicatorMovement;
                 elapsed_time = trial.elapsed_time;
-                saveData();
+                saveData(SUB_ID);
             }
         };
 
@@ -415,11 +402,10 @@
 
         // Variable for checking whether there's another trial
         var currentTrialIndex = 0;
-        var totalTrials = stimulus.length;
 
         // Function to check if there is a next trial
         function hasNextTrial() {
-            return currentTrialIndex < totalTrials - 1; // if returns True, show next trial screen
+            return currentTrialIndex < STIMULUS.length - 1; // if returns True, show next trial screen
         }
 
         // Next trial conditional function
@@ -456,16 +442,62 @@
                 no_movement_conditional,
                 next_trial_conditional
             ],
-            timeline_variables: stimulus,
+            timeline_variables: STIMULUS,
         }
-        timeline.push(rating_procedure_loop);
+        // timeline.push(rating_procedure_loop);
 
         var exp_end = {
           type: jsPsychHtmlButtonResponse,
           stimulus: '<div style="max-width:600px;"><p>Thank you for your participation! Please press "finish" and <b>do not exit out of the browser.</b> Thank you!</p></div>',
           choices: ['Finish']
         }
-        timeline.push(exp_end);
+        // timeline.push(exp_end);
+
+        function createExperiment(sub_id, practice_stimulus){
+
+            console.log(practice_stimulus)
+
+            var practice_rating_procedure_loop = {
+                timeline: [
+                    practice_pinknoise,
+                    practice_negation,
+                    practice_no_movement_conditional,
+                    practice_next_trial_conditional
+                ],
+                timeline_variables: practice_stimulus,
+            }
+
+            trials = [
+                welcome,
+                // pinknoise_instructions_and_prac,
+                practice_rating_procedure_loop,
+            ]
+
+            for (let i = 0; i < trials.length; i++) {
+                jsPsych.addNodeToEndOfTimeline(trials[i]);
+            }
+        }
+
+        // input SUB_ID
+        var input_id = {
+            type: jsPsychSurveyText,
+            questions: [
+                {
+                    prompt: 'Please enter your subject ID',
+                    name: "sub_id",
+                    required: true
+                },
+            ],
+            on_finish: function(data) {
+                SUB_ID = jsPsych.data.get().last(1).select('response').values[0].sub_id;
+                STIMULUS = loadStimulusFiles(SUB_ID).stimulus;
+                PRACTICE_STIMULUS = loadStimulusFiles(SUB_ID).practice_stimulus;
+
+                createExperiment(SUB_ID, PRACTICE_STIMULUS);
+            }
+        };
+        
+        timeline.push(input_id);
 
         // Run the experiment
         jsPsych.run(timeline);
