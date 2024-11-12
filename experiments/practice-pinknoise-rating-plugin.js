@@ -100,7 +100,7 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
               y2="${trial.rating_height / 2}"
             />
             <path id="rating-path" d="" fill="none" stroke="gray" stroke-width="2"/>
-            <circle id="rating-indicator" cx="0" cy="${(100 - rating_num) / 100 * trial.rating_height}" r="5" fill="black"/>
+            <circle id="rating-indicator" cx="${trial.rating_width}" cy="${(100 - rating_num) / 100 * trial.rating_height}" r="5" fill="black"/>
           </svg> 
           <div class="last-anchor">Least Enjoyment</div>
         </div>
@@ -186,7 +186,7 @@ var jsPsychPracticePinknoiseRating = (function (jspsych) {
       const updateRatingPath = () => {
         const path = document.getElementById('rating-path');
         const d = practice_numbers.map((y, i) => {
-          const x = (i / trial.practice_rating_history_length) * trial.rating_width; // scale x to fit width
+          const x = (1 - i / trial.practice_rating_history_length) * trial.rating_width;
           return `${i === 0 ? 'M' : 'L'} ${x} ${(1 - (y / 100)) * trial.rating_height}`;
         }).join(' ');
         path.setAttribute('d', d);
