@@ -129,11 +129,10 @@
             type: jsPsychInstructions,
             pages: [
                 'At various intervals, you will be interrupted and asked <b>how well you were understood by your partner</b> and <b>how well your partner was understood by you.</b>',
-                'To calibrate, <b>think of what feeling understood vs misunderstood by your partner means to you.</b> <br><br>How accurate do you think strangers’ predictions about you are at baseline?',
-                'Now consider telling someone a story about participating in team sports as a child.<br><br>How understood would you feel if your partner asked about the role of teamwork or physical fitness in your adult life?',
+                'To calibrate, <b>think of what feeling <i>understood</i> means to you.</b> <br><br>Consider how it feels when you discover that someone shares your values.<b> Keep that feeling in mind as the <i>maximum</i> rating you could give.</b>',
+                'Now, <b>think of what feeling <i>misunderstood</i> means to you.</b> <br><br>Consider how it feels when someone makes an incorrect assumption about you. <b>Keep that feeling in mind as the <i>minimum</i> rating you could give.</b>',
                 '<i>When you understand what you will be rating, please press next.</i><br><br>',
-                'To provide your ratings, you will use two side-by-side scales numbered 0-10: <br><br>' + negation_rating_example,
-                'You will use the each scale to rate <b>how well you understood your partner</b> and <b>how well your partner understood you.</b>',
+                'To provide your ratings, you will use two side-by-side scales numbered 0-10. Here, a rating of 0 indicates <b>feeling misunderstood</b> and a rating of 10 indicates <b>feeling understood</b>: <br><br>' + negation_rating_example,
                 '<i>When you understand what you will be rating, please press next.</i><br><br>',
             ],
             show_clickable_nav: true,
@@ -502,13 +501,13 @@
             }
 
             trials = [
-                // welcome,
-                // pinknoise_instructions_and_prac,
-                // negation_instructions_and_prac,
+                welcome,
+                pinknoise_instructions_and_prac,
+                negation_instructions_and_prac,
                 practice_experiment_loop,
-                // post_practice_message,
-                // experiment_loop,
-                // exp_end
+                post_practice_message,
+                experiment_loop,
+                exp_end
             ]
 
             for (let i = 0; i < trials.length; i++) {
