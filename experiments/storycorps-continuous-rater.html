@@ -54,9 +54,9 @@
             type: jsPsychInstructions,
             pages: [
                 'In this experiment, you’ll be listening to the StoryCorps One Small Step conversation that you recorded a few days ago.',
-                'As you listen, <b>try to remember how you felt at each moment of the conversation.</b> <br><br> You’ll be asked to provide a continuous rating of how much you were enjoying the conversation as it progressed.',
-                'To calibrate, <b>think of what a really enjoyable conversation feels like to you.</b> Maybe it’s talking with your best friend about a show you both like, or meeting a stranger you really hit it off with at a party. <b>Keep that feeling in mind as the maximum rating you could give.</b>',
-                'Now, <b>think of what a really unenjoyable conversation feels like to you.</b> Maybe it’s an awkward conversation with an untidy roommate, or an argument with a family-member. <b>Keep that feeling in mind as the minimum rating you could give.</b>',
+                'As you listen, <b>try to remember how you felt at each moment of the conversation.</b> <br><br>You’ll be asked to provide a continuous rating of how much you were enjoying the conversation as it progressed.',
+                'To calibrate, <b>think of what a really enjoyable conversation feels like to you.</b> <br><br>Maybe it’s talking with your best friend about a show you both like, or meeting a stranger you really hit it off with at a party. <b>Keep that feeling in mind as the maximum rating you could give.</b>',
+                'Now, <b>think of what a really unenjoyable conversation feels like to you.</b> <br><br>Maybe it’s an awkward conversation with an untidy roommate, or an argument with a family-member. <b>Keep that feeling in mind as the minimum rating you could give.</b>',
                 '<i>When you understand what you will be rating, please press next.</i><br><br>',
                 'To provide your continuous ratings, you will use a rating box that looks like the one below while listening to each audio clip:<br><br>' + pinknoise_rating_box,
                 'You will use the up and down arrow keys on your keyboard to adjust the rating to reflect how much you were enjoying the conversation at a given point.<br><br>' 
@@ -87,7 +87,7 @@
         var great_up = {
         type: jsPsychInstructions,
             pages: [
-                'Great! You just indicated the most enjoyment.',
+                'Great! You just indicated the <i>most enjoyment.</i>',
             ],
             show_clickable_nav: true,
         };
@@ -110,7 +110,7 @@
         var great_down = {
             type: jsPsychInstructions,
             pages: [
-                'Great! You just indicated the least enjoyent.'
+                'Great! You just indicated the <i>least enjoyent.</i>'
             ],
             show_clickable_nav: true,
         };
@@ -128,12 +128,12 @@
         var negation_instructions = {
             type: jsPsychInstructions,
             pages: [
-                'At various intervals, you will be interrupted and asked how well you were understood by your partner and how well your partner was understood by you.',
-                'To calibrate, think of what feeling understood vs misunderstood by your partner means to you. How accurate do you think strangers’ predictions about you are at baseline?',
-                'Now consider telling someone a story about participating in team sports a child. How understood would you feel if your partner asked about the role of teamwork or physical fitness in your adult life?',
+                'At various intervals, you will be interrupted and asked <b>how well you were understood by your partner</b> and <b>how well your partner was understood by you.</b>',
+                'To calibrate, <b>think of what feeling understood vs misunderstood by your partner means to you.</b> <br><br>How accurate do you think strangers’ predictions about you are at baseline?',
+                'Now consider telling someone a story about participating in team sports as a child.<br><br>How understood would you feel if your partner asked about the role of teamwork or physical fitness in your adult life?',
                 '<i>When you understand what you will be rating, please press next.</i><br><br>',
                 'To provide your ratings, you will use two side-by-side scales numbered 0-10: <br><br>' + negation_rating_example,
-                'You will use the each scale to rate how well you understood your partner and how well your partner understood you, respectively.',
+                'You will use the each scale to rate <b>how well you understood your partner</b> and <b>how well your partner understood you.</b>',
                 '<i>When you understand what you will be rating, please press next.</i><br><br>',
             ],
             show_clickable_nav: true,
@@ -442,7 +442,7 @@
             var welcome = {
                 type: jsPsychInstructions,
                 pages: [
-                'Welcome to the experiment. Click the button to begin.',
+                'Welcome to the experiment. Click next to begin.',
                 ],
                 show_clickable_nav: true,
                 data: {function: 'Welcome' }
